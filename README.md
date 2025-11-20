@@ -79,10 +79,11 @@ freshcart-churn-prediction/
 ├── data/                  # Data files
 ├── notebooks/             # Jupyter notebooks (EDA, modeling, etc.)
 ├── src/                   # Source code
-│   ├── data/             # Data processing scripts
+│   ├── data/              # Data processing scripts
 │   ├── features/         # Feature engineering scripts
 │   ├── models/           # Model definitions
-│   └── utils/            # Utility functions
+│   ├── utils/            # Utility functions
+|   └──config.sys          #System configuration
 ├── app/                   # Web application
 ├── models/                # Trained models
 ├── docs/                  # Documentation
