@@ -97,31 +97,25 @@ class ChurnLabelCreator:
         
         # Find the maximum order_number for each user (the most recent order)
         max_order_per_user = orders_df.groupby('user_id')['order_number'].max().reset_index()
-        max_order_per_user.columns = ['user_id', 'max_order_number']
+        #max_order_per_user.columns = ['user_id', 'max_order_number']
         
         # Global maximum order_number in the dataset (reference point)
         # This is considered the "current" point in time.
         global_max_order = orders_df['order_number'].max()
         
         # Find the last order for each user
-        last_orders = orders_df.merge(max_order_per_user, on=['user_id', 'order_number'])
-        
-        # Calculate recency (estimated)
-        # Note: We don't have real dates, so we use order_number and days_since_prior_order.
-        
-        # Alternative approach: cumulative sum of days_since_prior_order
-        orders_sorted = orders_df.sort_values(['user_id', 'order_number'])
-        
-        # Estimated days since the last order for each user.
-        # Last order = 0 days, previous one = days_since_prior_order, etc.
-        
+        last_orders = orders_df.merge(
+            max_order_per_user,
+            left_on=['user_id', 'order_number'],
+            right_on=['user_id', 'order_number']
+        )
+
         # Simplified approach: use the difference between last order_number and global max
         recency_df = orders_df.groupby('user_id').agg({
-            'order_number': 'max',
-            'days_since_prior_order': 'last'  # Value from the last order
+            'order_number': 'max'
         }).reset_index()
         
-        recency_df.columns = ['user_id', 'last_order_number', 'last_days_since_prior']
+        recency_df.columns = ['user_id', 'last_order_number']
         
         # Normalize against the global last order
         # If a user's last order is far from the global max, they have likely churned.
