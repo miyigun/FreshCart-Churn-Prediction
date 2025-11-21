@@ -1,0 +1,15 @@
+{
+    "num_leaves": 97,
+    "learning_rate": 0.21211568865048855,
+    "feature_fraction": 0.8078202857302959,
+    "bagging_fraction": 0.5223123065685351,
+    "bagging_freq": 1,
+    "min_child_samples": 7,
+    "max_depth": 3,
+    "objective": "binary",
+    "metric": "auc",
+    "boosting_type": "gbdt",
+    "verbose": -1,
+    "random_state": 42,
+    "is_unbalance": true
+}
