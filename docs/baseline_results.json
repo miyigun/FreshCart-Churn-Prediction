@@ -1,0 +1,118 @@
+{
+    "logistic_regression": {
+        "accuracy": 0.9993938218321129,
+        "precision": 1.0,
+        "recall": 0.9993891115238002,
+        "f1": 0.9996944624372119,
+        "roc_auc": 1.0
+    },
+    "random_forest": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0
+    },
+    "feature_importance": {
+        "feature": {
+            "5": "orders_per_day",
+            "2": "customer_age_days",
+            "0": "days_since_last_order",
+            "4": "total_orders",
+            "3": "avg_days_between_orders",
+            "24": "total_reordered_items",
+            "28": "favorite_products_count",
+            "7": "std_days_between_orders",
+            "9": "total_items_ordered",
+            "30": "unique_aisles",
+            "23": "overall_reorder_rate",
+            "26": "avg_reorder_rate_per_order",
+            "33": "product_diversity_score",
+            "29": "unique_products",
+            "31": "unique_departments",
+            "34": "exploration_rate",
+            "12": "avg_unique_products_per_order",
+            "32": "avg_products_per_order",
+            "16": "avg_order_dow",
+            "27": "reorder_consistency_std",
+            "8": "avg_basket_size",
+            "6": "order_regularity",
+            "11": "basket_size_cv",
+            "17": "std_order_dow",
+            "10": "basket_size_std",
+            "13": "avg_order_hour",
+            "19": "weekend_order_ratio",
+            "25": "reorder_rate_std",
+            "22": "afternoon_order_ratio",
+            "21": "morning_order_ratio",
+            "18": "preferred_dow",
+            "20": "night_order_ratio",
+            "15": "preferred_hour",
+            "14": "std_order_hour",
+            "1": "days_since_first_order"
+        },
+        "importance": {
+            "5": 0.1902607954408817,
+            "2": 0.17054855880105615,
+            "0": 0.15380191378779914,
+            "4": 0.10702857808200124,
+            "3": 0.10358903051108109,
+            "24": 0.058297037696314405,
+            "28": 0.05670476091397198,
+            "7": 0.049628569998706504,
+            "9": 0.03948647244647272,
+            "30": 0.014657555708094967,
+            "23": 0.01386897344163574,
+            "26": 0.013029590176029759,
+            "33": 0.010242155949566754,
+            "29": 0.0043916877445351115,
+            "31": 0.004283247043452152,
+            "34": 0.003308652775174632,
+            "12": 0.0019522152444509486,
+            "32": 0.001695234700628697,
+            "16": 0.0015500377255447206,
+            "27": 0.0004185126196051247,
+            "8": 0.00031877498168428797,
+            "6": 0.00023168727359209674,
+            "11": 0.00021478225037244674,
+            "17": 0.00020917144263762753,
+            "10": 0.0001926342318605648,
+            "13": 4.843660420196253e-05,
+            "19": 2.161260393886991e-05,
+            "25": 1.4988537337426325e-05,
+            "22": 1.8799153536232298e-06,
+            "21": 1.2293029137082018e-06,
+            "18": 6.122023018746795e-07,
+            "20": 6.098467429071445e-07,
+            "15": 3.0826343542268024e-14,
+            "14": 2.8219626893773864e-14,
+            "1": 0.0
+        }
+    },
+    "comparison": {
+        "Model": {
+            "0": "Logistic Regression",
+            "1": "Random Forest"
+        },
+        "Accuracy": {
+            "0": 0.9993938218321129,
+            "1": 1.0
+        },
+        "Precision": {
+            "0": 1.0,
+            "1": 1.0
+        },
+        "Recall": {
+            "0": 0.9993891115238002,
+            "1": 1.0
+        },
+        "F1-Score": {
+            "0": 0.9996944624372119,
+            "1": 1.0
+        },
+        "ROC-AUC": {
+            "0": 1.0,
+            "1": 1.0
+        }
+    }
+}

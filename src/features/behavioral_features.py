@@ -190,9 +190,9 @@ class BehavioralFeatureEngineer:
         return reorder_features
     
     def create_diversity_features(self,
-                                  orders_df: pd.DataFrame,
-                                  order_products_df: pd.DataFrame,
-                                  products_df: pd.DataFrame) -> pd.DataFrame:
+                                orders_df: pd.DataFrame,
+                                order_products_df: pd.DataFrame,
+                                products_df: pd.DataFrame) -> pd.DataFrame:
         """
         Product diversity features.
         
@@ -204,11 +204,12 @@ class BehavioralFeatureEngineer:
         - avg_products_per_order: Average products per order.
         - exploration_rate: Rate of trying new products.
         """
+        # BU SATIRDAN İTİBAREN TÜM KODLARIN GİRİNTİLİ OLDUĞUNDAN EMİN OLUN
         logger.info("   Creating diversity features...")
         
         # Merge to get aisle and department info
         order_products_full = order_products_df\
-            .merge(orders_df[['order_id', 'user_id']], on='order_id')\
+            .merge(orders_df[['order_id', 'user_id', 'order_number']], on='order_id')\
             .merge(products_df[['product_id', 'aisle_id', 'department_id']], on='product_id')
         
         # Unique counts
@@ -229,7 +230,7 @@ class BehavioralFeatureEngineer:
         
         # Products per order
         diversity_stats['avg_products_per_order'] = (
-            order_products_full.groupby('user_id')['product_id'].count().values / 
+            order_products_full.groupby('user_id').size().values / 
             diversity_stats['total_orders']
         )
         
@@ -239,36 +240,31 @@ class BehavioralFeatureEngineer:
             (diversity_stats['total_orders'] * diversity_stats['avg_products_per_order'] + 1)
         )
         
-        # Exploration rate (trying new products over time)
-        # Calculate: products in later orders that weren't in the first half
-        exploration_rates = []
-        
-        for user_id in diversity_stats['user_id']:
-            user_orders = order_products_full[order_products_full['user_id'] == user_id]\
-                .merge(orders_df[['order_id', 'order_number']], on='order_id')
+        # --- OPTIMIZED EXPLORATION RATE CALCULATION ---
+        def calculate_exploration(df_group):
+            if df_group.empty:
+                return 0
             
-            if len(user_orders) > 0:
-                mid_point = user_orders['order_number'].median()
-                
-                early_products = set(user_orders[user_orders['order_number'] <= mid_point]['product_id'])
-                late_products = set(user_orders[user_orders['order_number'] > mid_point]['product_id'])
-                
-                if len(late_products) > 0:
-                    exploration_rate = len(late_products - early_products) / len(late_products)
-                else:
-                    exploration_rate = 0
-            else:
-                exploration_rate = 0
+            mid_point = df_group['order_number'].median()
             
-            exploration_rates.append(exploration_rate)
+            early_products = set(df_group.loc[df_group['order_number'] <= mid_point, 'product_id'])
+            late_products = set(df_group.loc[df_group['order_number'] > mid_point, 'product_id'])
+            
+            if len(late_products) > 0:
+                return len(late_products - early_products) / len(late_products)
+            return 0
+
+        # Apply the function to each user group
+        exploration_df = order_products_full.groupby('user_id').apply(calculate_exploration).reset_index(name='exploration_rate')
         
-        diversity_stats['exploration_rate'] = exploration_rates
-        
+        diversity_stats = diversity_stats.merge(exploration_df, on='user_id', how='left')
+        # --- END OF OPTIMIZATION ---
+
         # Drop temporary column
         diversity_stats = diversity_stats.drop('total_orders', axis=1)
         
         return diversity_stats
-    
+
     def get_feature_names(self) -> List[str]:
         """Return a list of the feature names."""
         return self.feature_names
