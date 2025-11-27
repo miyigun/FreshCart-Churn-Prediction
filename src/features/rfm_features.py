@@ -39,6 +39,12 @@ class RFMFeatureEngineer:
         Returns:
             A dataframe with user-level RFM features.
         """
+
+        # --- VERİ SIZMASI (DATA LEAKAGE) ENGELLEME ---
+        # Sadece geçmiş verileri (prior) kullanarak özellik türetmeliyiz.
+        # Train veya test setindeki satırlar "gelecek" bilgisi içerir.
+        orders_df = orders_df[orders_df['eval_set'] == 'prior'].copy()
+
         logger.info("🔧 Creating RFM features...")
         
         # Recency features
