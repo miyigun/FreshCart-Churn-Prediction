@@ -34,13 +34,21 @@ ENV/
 data/raw/*.csv
 data/raw/*.parquet
 data/processed/*.csv
-data/processed/*.parquet
+!data/processed/final_features_advanced.parquet
 data/external/*
 *.zip
 *.tar.gz
 
+# Ama klasör yapısı bozulmasın diye .gitkeep dosyalarını tut
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
 # Models (large files)
-models/*.pkl
+models/*
+!models/final_model_optimized.pkl
+!models/best_params.json
+!models/final_metrics.json
+!models/feature_names.json
 models/*.joblib
 models/*.h5
 models/*.pb
