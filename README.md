@@ -11,6 +11,16 @@
 
 ---
 
+<p align="center">
+  <a href="docs/FreshCart_Executive_Presentation.pptx">
+    <img src="https://img.shields.io/badge/PowerPoint-Download%20Executive%20Presentation-b03c2e?style=for-the-badge&logo=microsoftpowerpoint&logoColor=white" alt="Download Presentation">
+  </a>
+</p>
+
+> **Note for Stakeholders:** A concise executive presentation outlining the business problem, solution strategy, financial impact ($1.8M ROI), and operational roadmap is available above.
+
+---
+
 ## 📋 About The Project
 
 **FreshCart** is an online grocery and food delivery platform. In this project, we have developed a machine learning system that predicts customers at risk of churning **14 days in advance**.
