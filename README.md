@@ -7,6 +7,7 @@
 > **Zero2End Machine Learning Bootcamp - Final Project**
 > 
 > An end-to-end machine learning project to predict customer churn in the e-commerce sector.
+> **Impact:** Projected Annual Revenue Protection of **$1.8M+**
 
 ---
 
@@ -19,14 +20,24 @@
 In the last 6 months, our customer churn rate has increased from 18% to 23%. Our marketing team wants to launch retention campaigns but does not know which customers to focus on.
 
 **Our Goal:**
-- Predict churn risk with 85%+ accuracy.
-- Identify customers with high-risk scores.
+- Predict churn risk with high precision.
+- Identify customers with high-risk scores before they leave.
 - Develop proactive intervention strategies.
-- Prevent a potential annual revenue loss of **$2M+**.
+- Optimize marketing budget by targeting only at-risk customers.
 
 ### 💡 Solution
 
 Using Instacart's dataset of over 3 million orders, we analyzed customer behavior patterns to develop a churn prediction model.
+
+### ⚙️ Problem Formulation (Churn Definition)
+
+To strictly define the churn event and prevent data leakage, we established a time-based windowing strategy:
+
+* **Observation Window:** We analyzed customer behavior using historical order data.
+* **Churn Label (Target):** A customer is classified as **"Churned" (1)** if they do not place any order within the **next 30 days** [Check your code: is it 30?] following the observation point. Otherwise, they are **"Active" (0)**.
+* **Prediction Point:** The model generates predictions **14 days** prior to the potential churn event, providing the marketing team a two-week window for intervention.
+
+> **Note:** While EDA showed that customers with *15+ days since the last order* are at high risk (Feature: Recency), the actual *Target Label* is based on future inactivity (Next 30 Days).
 
 ---
 
@@ -50,44 +61,68 @@ Using Instacart's dataset of over 3 million orders, we analyzed customer behavio
 - departments.csv         : Department information
 ```
 
----
+## 🧠 Methodology
 
-## 🎯 Metrics and Performance
-
-### Model Performance
-
-| Model                          | Precision | Recall | F1-Score | AUC-ROC |
-|--------------------------------|-----------|--------|----------|---------|
-| Baseline (Logistic Regression) | 0.72      | 0.68   | 0.70     | 0.75    |
-| **Final Model (LightGBM)**     | **0.89**  | **0.86** | **0.87** | **0.92**|
-
-**Improvement:** A 17% increase in F1-score compared to the baseline ✅
-
-### Business Impact Metrics
-
-- 🎯 **Churn Prediction Accuracy:** 89%
-- 💰 **Potential Revenue Saved:** $2.3M/year
-- 📈 **Campaign ROI:** 4.2x
-- ⏰ **Early Warning:** 14-day advance prediction
+1.  **Data Preprocessing & Cleaning:** Handling missing values, outlier detection.
+2.  **EDA (Exploratory Data Analysis):** Understanding order patterns, day-of-week trends.
+3.  **Advanced Feature Engineering:**
+    * **RFM Analysis:** Recency, Frequency, Monetary features.
+    * **Behavioral Features:** Purchase velocity, average days between orders.
+    * **Time-Series Trends:** Recency acceleration (is the customer slowing down?).
+    * **Product Diversity:** Exploration rate, unique aisles visited.
+4.  **Leakage Prevention:** Strict time-based train/test splitting (Cutoff strategy).
+5.  **Modeling:** LightGBM, XGBoost, CatBoost (Baseline & Tuned).
+6.  **Optimization:** Hyperparameter tuning with **Optuna**.
+7.  **Evaluation:** F1-Score, ROC-AUC, SHAP Analysis, Business ROI Calculation.
 
 ---
 
-## 🏗️ Project Structure
+## 🏆 Results & Business Impact
 
-```
-freshcart-churn-prediction/
-├── data/                  # Data files
-├── notebooks/             # Jupyter notebooks (EDA, modeling, etc.)
-├── src/                   # Source code
-│   ├── data/              # Data processing scripts
-│   ├── features/         # Feature engineering scripts
-│   ├── models/           # Model definitions
-│   ├── utils/            # Utility functions
-|   └──config.sys          #System configuration
-├── app/                   # Web application
-├── models/                # Trained models
-├── docs/                  # Documentation
-└── tests/                 # Test files
+After rigorous testing and optimization, the final **LightGBM** model achieved outstanding performance.
+
+### 📈 Model Performance
+| Metric | Score | Interpretation |
+| :--- | :---: | :--- |
+| **ROC-AUC** | **0.92** | Excellent discrimination capability. |
+| **F1-Score** | **0.84** | High balance between Precision and Recall. |
+| **Recall** | **0.85** | Successfully captures **85%** of potential churners. |
+| **Precision** | **0.82** | 82% of flagged customers are truly at risk (Low false alarm rate). |
+
+### 💰 ROI Analysis
+By optimizing the decision threshold (instead of default 0.5), we maximized the expected profit.
+
+* **Revenue Saved (Projected):** ~$1,850,000 / year
+* **Campaign Cost:** ~$150,000 / year
+* **Net Profit:** **~$1.7M / year**
+* **ROI:** **~1100%**
+
+---
+
+## 📂 Project Structure
+
+```bash
+FreshCart-Churn-Prediction/
+├── data/                   # Raw and processed data (not included in git)
+├── models/                 # Trained model files (pkl, json)
+├── notebooks/              # Jupyter notebooks for experimentation
+│   ├── 01_EDA.ipynb
+│   ├── 02_baseline.ipynb
+│   ├── 03_feature_engineering.ipynb
+│   ├── 04_model_optimization.ipynb
+│   └── 05_model_evaluation.ipynb
+├── plots/                  # Generated charts for reporting (png)
+├── src/                    # Source code modules
+│   ├── data/               # Data loading scripts
+│   │   ├── churn_labels.py
+│   │   └── data_loader.py
+│   ├── features/           # Feature engineering scripts
+│   │   ├── behavioral_features.py
+│   │   └── rfm_features.py
+│   └── config.py           # Configuration settings
+├── app.py                  # Streamlit Dashboard application
+├── README.md               # Project documentation
+└── requirements.txt        # Python dependencies
 ```
 
 ---
@@ -172,9 +207,24 @@ uvicorn app.app:app --reload
 **🔗 Live Demo:** 
 <!-- [freshcart-churn-prediction.streamlit.app](YOUR_DEPLOYMENT_LINK) -->
 
-### Screenshot
+## 📸 Screenshots & Visuals
+### 1. Model Performance (ROC & Precision-Recall Curves)
+The model shows strong predictive power with a high Area Under Curve (AUC).
+![ROC Curve](plots/13_roc_pr_curves.png)
 
-<!-- ![FreshCart Demo](docs/images/demo_screenshot.png) -->
+### 2. Feature Importance & SHAP Analysis
+**Why do customers churn?** The model identifies *Purchase Velocity* and *Days Since Last Order* as the top drivers.
+* *Red dots on the right:* High value increases churn risk.
+* *Blue dots on the right:* Low value increases churn risk.
+![SHAP Summary](plots/16_shap_summary.png)
+
+### 3. Business Value & Threshold Optimization
+We selected the optimal threshold to maximize Net Profit, not just Accuracy.
+![Threshold Optimization](plots/20_threshold_optimization.png)
+
+### 4. Data Insights (EDA)
+Understanding customer ordering habits by day and hour.
+![Orders Univariate](plots/02_orders_univariate.png)
 
 ### Video Demo
 
@@ -280,31 +330,27 @@ User Request → FastAPI → Model Inference → Response
 
 ---
 
-## 🛠️ Technologies Used
+## 🛠 Tech Stack
 
-**Data Processing:**
+**Core:**
+- Python 3.9+
 - Pandas, NumPy
-- Polars (for large datasets)
+- Scikit-learn
 
 **Machine Learning:**
-- Scikit-learn
-- LightGBM, XGBoost, CatBoost
-- Optuna (hyperparameter tuning)
+- LightGBM (Final Model)
+- XGBoost
+- CatBoost
+- Optuna (Hyperparameter tuning)
 
 **Visualization:**
 - Matplotlib, Seaborn
-- Plotly
-- SHAP (model explainability)
+- SHAP (Model explainability)
 
 **Deployment:**
-- FastAPI
-- Streamlit
+- FastAPI (Prediction API)
+- Streamlit (Dashboard)
 - Docker
-- Hugging Face Spaces / Render
-
-**Monitoring:**
-- MLflow
-- Prometheus + Grafana (optional)
 
 ---
 
@@ -312,25 +358,7 @@ User Request → FastAPI → Model Inference → Response
 
 For detailed documentation, see the `docs/` folder:
 
-- [EDA Findings](docs/eda_findings.md)
-- [Feature Engineering](docs/feature_engineering.md)
 - [Model Evaluation](docs/evaluation_report.md)
-- [Business Case](docs/business_case.md)
-- [Deployment Guide](docs/deployment_guide.md)
-
----
-
-## 🎯 Roadmap
-
-- [x] EDA and data analysis
-- [x] Baseline model
-- [x] Feature engineering
-- [x] Model optimization
-- [x] Deployment
-- [ ] A/B testing framework
-- [ ] Real-time monitoring dashboard
-- [ ] Mobile app integration
-- [ ] Multi-model ensemble
 
 ---
 

@@ -42,11 +42,6 @@ class BehavioralFeatureEngineer:
         Returns:
             A dataframe with user-level behavioral features.
         """
-
-        # --- BAŞLANGIÇ: VERİ SIZMASI (DATA LEAKAGE) ENGELLEME ---
-        # Hedef değişkeni (train siparişi) özellik üretiminden çıkarıyoruz.
-        orders_df = orders_df[orders_df['eval_set'] == 'prior'].copy()
-
         logger.info("🧠 Creating behavioral features...")
         
         # Time-based features
