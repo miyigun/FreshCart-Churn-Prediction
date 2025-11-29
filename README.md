@@ -1,8 +1,8 @@
 # 🛒 FreshCart Customer Churn Prediction
 
-<!-- [![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Streamlit](https://img.shields.io/badge/Streamlit-Deployed-red)](YOUR_DEPLOYMENT_LINK) -->
+## 🌐 Demo
+
+**🔗 Live Demo:** [Click to Launch App 🚀](https://freshcarte-ticaretplatformu-kanxyvljs8xgbfxnxkahym.streamlit.app/)
 
 > **Zero2End Machine Learning Bootcamp - Final Project**
 > 
