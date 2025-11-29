@@ -302,10 +302,10 @@ elif page == "📊 Model Analytics":
     st.markdown("Evaluation results on test data (20% hold-out set).")
     
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("ROC-AUC Score", "0.92", "Excellent")
-    m2.metric("F1-Score", "0.84", "Balanced")
-    m3.metric("Recall Rate", "85%", "High Capture")
-    m4.metric("Proj. Revenue Impact", "$1.8M", "Annual Saved")
+    m1.metric("ROC-AUC Score", "0.77", "Good Stability")
+    m2.metric("F1-Score", "0.60", "Recall Focused")
+    m3.metric("Recall Rate", "81%", "High Capture")
+    m4.metric("Proj. Revenue Impact", "$1.7M", "Annual Saved")
 
     st.markdown("---")
     
