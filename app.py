@@ -218,7 +218,7 @@ if page == "🏠 Prediction Hub":
         # SELECTION AREA
         st.subheader("👤 Customer Profile Selection")
         
-        sel_col1, sel_col2 = st.columns([1, 2])
+        sel_col1, sel_col2, _ = st.columns([1, 1.5, 2])
         
         with sel_col1:
             input_method = st.radio("Source:", ["ID List", "Random Sample"], horizontal=True)
