@@ -94,10 +94,10 @@ After rigorous testing and optimization, the final **LightGBM** model was tuned 
 ### 📈 Model Performance
 | Metric | Score | Interpretation |
 | :--- | :---: | :--- |
-| **ROC-AUC** | **0.77** | Good capability to distinguish between churners and active users. |
-| **Recall** | **81%** | **Critical Metric:** We successfully capture **4 out of 5** potential churners. |
-| **Precision** | **47%** | We accept a broader targeting strategy to minimize missed churners (False Negatives). |
-| **F1-Score** | **0.60** | Reflects the strategic trade-off between Precision and Recall. |
+| **ROC-AUC** | **0.76** | Good capability to distinguish between churners and active users. |
+| **Recall** | **85%** | **Critical Metric:** We successfully capture **4 out of 5** potential churners. |
+| **Precision** | **43%** | We accept a broader targeting strategy to minimize missed churners (False Negatives). |
+| **F1-Score** | **0.58** | Reflects the strategic trade-off between Precision and Recall. |
 
 > **Strategy Note:** In churn prediction, a **False Negative** (missing a customer who leaves) is much costlier than a **False Positive** (giving a discount to a happy customer). Therefore, we optimized the decision threshold to maximize **Recall (81%)**.
 
