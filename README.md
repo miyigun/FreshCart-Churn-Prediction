@@ -89,15 +89,17 @@ To strictly define the churn event and prevent data leakage, we established a ti
 
 ## 🏆 Results & Business Impact
 
-After rigorous testing and optimization, the final **LightGBM** model achieved outstanding performance.
+After rigorous testing and optimization, the final **LightGBM** model was tuned to prioritize **Recall** (catching churners) over Precision.
 
 ### 📈 Model Performance
 | Metric | Score | Interpretation |
 | :--- | :---: | :--- |
-| **ROC-AUC** | **0.92** | Excellent discrimination capability. |
-| **F1-Score** | **0.84** | High balance between Precision and Recall. |
-| **Recall** | **0.85** | Successfully captures **85%** of potential churners. |
-| **Precision** | **0.82** | 82% of flagged customers are truly at risk (Low false alarm rate). |
+| **ROC-AUC** | **0.77** | Good capability to distinguish between churners and active users. |
+| **Recall** | **81%** | **Critical Metric:** We successfully capture **4 out of 5** potential churners. |
+| **Precision** | **47%** | We accept a broader targeting strategy to minimize missed churners (False Negatives). |
+| **F1-Score** | **0.60** | Reflects the strategic trade-off between Precision and Recall. |
+
+> **Strategy Note:** In churn prediction, a **False Negative** (missing a customer who leaves) is much costlier than a **False Positive** (giving a discount to a happy customer). Therefore, we optimized the decision threshold to maximize **Recall (81%)**.
 
 ### 💰 ROI Analysis
 By optimizing the decision threshold (instead of default 0.5), we maximized the expected profit.
