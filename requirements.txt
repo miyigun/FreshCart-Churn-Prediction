@@ -1,66 +1,29 @@
-# Core Data Science Libraries
-numpy
+# --- Core ---
+streamlit
 pandas
-polars==0.18.15
+numpy
+joblib
 
-# Machine Learning
+# --- Machine Learning & Explainer ---
 scikit-learn
 lightgbm
-xgboost
+shap
+# xgboost ve catboost eğer modelin içinde kullanılmıyorsa silebilirsin, 
+# ancak model.pkl bunları gerektiriyorsa kalsın.
+xgboost 
 catboost
-
-# Hyperparameter Optimization
 optuna
 
-# Visualization
+# --- Visualization ---
 matplotlib
 seaborn
 plotly
 
-# Model Interpretation
-shap
-
-# Feature Engineering
-category_encoders
-feature-engine
-
-# Data Validation
-pandas-profiling
-great-expectations
-
-# API & Web Framework
-fastapi
-uvicorn
-streamlit
-pydantic
-
-# Database
-sqlalchemy
-psycopg2-binary
-
-# Utilities
+# --- Utilities ---
 python-dotenv
 pyyaml
-joblib
-tqdm
 
-# Logging & Monitoring
-loguru
-mlflow
-
-# Testing
-pytest
-pytest-cov
-
-# Jupyter
-jupyter
-ipykernel
-notebook
-
-# Kaggle API
-kaggle
-
-# Others
-imbalanced-learn
-scipy
-pyarrow<21.0.0
+# --- Database (App.py sqlite3 kullanıyor ama src/db.py için gerekebilir) ---
+sqlalchemy
+# Postgres kullanmıyorsan bunu silebilirsin, sqlite python'da gömülüdür.
+# psycopg2-binary
