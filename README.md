@@ -4,6 +4,8 @@
 
 **🔗 Live Demo:** [Click to Launch App 🚀](https://freshcarte-churn-prediction-kanxyvljs8xgbfxnxkahym.streamlit.app/)
 
+**📖 Medium Article:** [From Data to Dollars – Full Story on Medium](https://medium.com/@miyigun2017/from-data-to-dollars-building-an-end-to-end-customer-churn-prediction-system-6971c531edc6)
+
 > **Zero2End Machine Learning Bootcamp - Final Project**
 > 
 > An end-to-end machine learning project to predict customer churn in the e-commerce sector.
