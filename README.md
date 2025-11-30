@@ -94,31 +94,31 @@ After rigorous testing and optimization, the final **LightGBM** model was tuned 
 ### 📈 Model Performance
 | Metric | Score | Interpretation |
 | :--- | :---: | :--- |
-| **ROC-AUC** | **0.7649** | Good capability to distinguish between churners and active users. |
-| **Recall** | **88%** | **Critical Metric:** We successfully capture **4 out of 5** potential churners. |
-| **Precision** | **44%** | We accept a broader targeting strategy to minimize missed churners (False Negatives). |
-| **F1-Score** | **0.58** | Reflects the strategic trade-off between Precision and Recall. |
+| **ROC-AUC** | **0.7644** | Good capability to distinguish between churners and active users. |
+| **Recall** | **81%** | **Critical Metric:** We successfully capture **4 out of 5** potential churners. |
+| **Precision** | **46%** | We accept a broader targeting strategy to minimize missed churners (False Negatives). |
+| **F1-Score** | **0.59** | Reflects the strategic trade-off between Precision and Recall. |
 
-> **Strategy Note:** In churn prediction, a **False Negative** (missing a customer who leaves) is much costlier than a **False Positive** (giving a discount to a happy customer). Therefore, we optimized the decision threshold to maximize **Recall (88%)**.
+> **Strategy Note:** In churn prediction, a **False Negative** (missing a customer who leaves) is much costlier than a **False Positive** (giving a discount to a happy customer). Therefore, we optimized the decision threshold to maximize **Recall (81%)**.
 
 ### 💰 ROI Analysis
 By optimizing the decision threshold (instead of default 0.5), we maximized the expected profit.
 
-* **Revenue Saved (Projected):** ~$1,915,000 / year
+* **Revenue Saved (Projected):** ~$1,760,000 / year
 * **Campaign Cost:** ~$150,000 / year
-* **Net Profit:** **~$1.77M / year**
-* **ROI:** **~1177%**
+* **Net Profit:** **~$1.61M / year**
+* **ROI:** **~1070%**
 
 ### 📊 Model Evolution (Baseline vs Final)
-We started with a simple Logistic Regression model and iteratively improved performance through feature engineering and advanced algorithms.
+We started with a simple Logistic Regression model and improved performance through advanced algorithms and hyperparameter tuning.
 
 | Model Strategy | Algorithm | F1-Score | ROC-AUC | Improvement |
 | :--- | :--- | :---: | :---: | :--- |
-| **Baseline** | Logistic Regression | 0.45 | 0.68 | - |
-| **V2 (Feature Eng.)** | XGBoost | 0.52 | 0.72 | +15% |
-| **Final (Tuned)** | **LightGBM** | **0.58** | **0.76** | **+28% vs Baseline** |
+| **Baseline** | Logistic Regression | 0.57 | 0.75 |
+| **V2 (Feature Eng.)** | XGBoost | 0.52 | 0.72 |
+| **Final (Tuned)** | **LightGBM** | **0.59** | **0.76** |
 
-> **Key Takeaway:** Feature engineering (especially behavioral trends) provided the biggest uplift in model performance.
+> **Key Takeaway:** Although the baseline model performed reasonably well, the Final LightGBM model offered better stability and a higher F1-Score (0.59 vs 0.57), optimizing the balance between precision and recall.
 
 ---
 

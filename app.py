@@ -137,30 +137,61 @@ st.markdown("""
 @st.cache_resource
 def load_artifacts():
     """Loads the trained model and necessary metadata."""
+    # 1. Load Model
     try:
         model = joblib.load(MODEL_DIR / 'final_model_optimized.pkl')
     except FileNotFoundError:
-        st.error("⚠️ Model file not found. Please check the 'models' directory.")
+        st.error("⚠️ Model file (final_model_optimized.pkl) not found in models directory.")
         st.stop()
     
+    # 2. Load Feature Names
+    # App looks at models/feature_names.json first, then processed/model_features.json
+    feature_names = []
+    feature_file_used = ""
+    
     try:
-        features_path = MODEL_DIR / 'feature_names.json'
-        if not features_path.exists():
-             features_path = PROCESSED_DATA_DIR / 'model_features.json'
-             
-        with open(features_path, 'r') as f:
-            feature_names = json.load(f)
+        path_primary = MODEL_DIR / 'feature_names.json'
+        path_secondary = PROCESSED_DATA_DIR / 'model_features.json'
+        
+        if path_primary.exists():
+            with open(path_primary, 'r') as f:
+                feature_names = json.load(f)
+            feature_file_used = "models/feature_names.json"
+        elif path_secondary.exists():
+            with open(path_secondary, 'r') as f:
+                feature_names = json.load(f)
+            feature_file_used = "data/processed/model_features.json"
+        else:
+            st.error("⚠️ Feature list JSON file not found in models/ or data/processed/.")
+            st.stop()
             
-    except FileNotFoundError:
-        st.error("⚠️ Feature names file not found.")
+    except Exception as e:
+        st.error(f"⚠️ Error loading feature names: {e}")
         st.stop()
         
+    # 3. Load Data
     try:
-        data = pd.read_parquet(PROCESSED_DATA_DIR / 'final_features_advanced.parquet')
+        data_path = PROCESSED_DATA_DIR / 'final_features_advanced.parquet'
+        data = pd.read_parquet(data_path)
+        
+        # Validate Columns immediately to prevent late KeyErrors
+        missing_cols = [col for col in feature_names if col not in data.columns]
+        if missing_cols:
+            st.warning(f"⚠️ Data Mismatch detected! The feature list in '{feature_file_used}' expects columns not found in the parquet file: {missing_cols}")
+            # Fail safe: Only keep columns that actually exist
+            feature_names = [col for col in feature_names if col in data.columns]
+        
         cols_to_keep = ['user_id', 'is_churn'] + feature_names
+        # Ensure user_id and is_churn exist too
         cols_to_keep = [c for c in cols_to_keep if c in data.columns]
+        
         data = data[cols_to_keep]
-    except:
+        
+    except FileNotFoundError:
+        st.warning("⚠️ Parquet data not found. App will run in Model-Only mode (no historical data).")
+        data = pd.DataFrame()
+    except Exception as e:
+        st.error(f"⚠️ Error loading data: {e}")
         data = pd.DataFrame()
 
     return model, feature_names, data
