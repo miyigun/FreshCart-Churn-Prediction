@@ -11,7 +11,7 @@
 ## Demo ve Kaynaklar
 
 - **Live Demo:** [Uygulamayı Başlat](https://freshcarte-churn-prediction-kanxyvljs8xgbfxnxkahym.streamlit.app/)
-- **Medium Yazısı:** [From Data to Dollars – Tam Hikaye](https://medium.com/@miyigun2017/veriden-dolara-u%C3%A7tan-uca-bir-m%C3%BC%C5%9Fteri-kayb%C4%B1-tahmin-sistemi-olu%C5%9Fturma-1e847bde4182)
+- **Medium Yazısı:** [Veriden Dolara: Uçtan Uca bir Müşteri Kaybı Tahmin Sistemi Oluşturma](https://medium.com/@miyigun2017/veriden-dolara-u%C3%A7tan-uca-bir-m%C3%BC%C5%9Fteri-kayb%C4%B1-tahmin-sistemi-olu%C5%9Fturma-1e847bde4182)
 - **Yönetici Sunumu:** [PowerPoint'i İndir](docs/FreshCart_Executive_Presentation.pptx)
 
 ---
