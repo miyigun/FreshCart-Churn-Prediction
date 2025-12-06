@@ -4,14 +4,14 @@
 ![Library](https://img.shields.io/badge/LightGBM-Framework-orange)
 ![Status](https://img.shields.io/badge/Status-Completed-success)
 
-> **Zero2End Machine Learning Bootcamp - Final Projesi**
+> **Zero2End Machine Learning Bootcamp - Bitirme Projesi**
 
 ---
 
 ## Demo ve Kaynaklar
 
 - **Live Demo:** [Uygulamayı Başlat](https://freshcarte-churn-prediction-kanxyvljs8xgbfxnxkahym.streamlit.app/)
-- **Medium Yazısı:** [From Data to Dollars – Tam Hikaye](https://medium.com/@miyigun2017/from-data-to-dollars-building-an-end-to-end-customer-churn-prediction-system-6971c531edc6)
+- **Medium Yazısı:** [From Data to Dollars – Tam Hikaye](https://medium.com/@miyigun2017/veriden-dolara-u%C3%A7tan-uca-bir-m%C3%BC%C5%9Fteri-kayb%C4%B1-tahmin-sistemi-olu%C5%9Fturma-1e847bde4182)
 - **Yönetici Sunumu:** [PowerPoint'i İndir](docs/FreshCart_Executive_Presentation.pptx)
 
 ---
