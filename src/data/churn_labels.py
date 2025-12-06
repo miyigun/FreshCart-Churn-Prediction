@@ -1,8 +1,8 @@
 """
-Churn Label Creation Module (CORRECTED - HOLD OUT STRATEGY)
-===========================================================
-Uses the 'train' evaluation set to define ground truth churn.
-Prevents Data Leakage by separating 'prior' (history) and 'train' (target).
+Müşteri Kaybı Etiketi Oluşturma Modülü (HOLD OUT STRATEJİSİ)
+========================================================================
+Gerçek müşteri kaybı etiketlerini tanımlamak için 'train' değerlendirme setini kullanır.
+'prior' (geçmiş) ve 'train' (hedef) verilerini ayırarak Veri Sızıntısını önler.
 """
 
 import pandas as pd
@@ -16,79 +16,79 @@ logger = logging.getLogger(__name__)
 
 class ChurnLabelCreator:
     """
-    Creates churn labels based on the 'train' evaluation set provided by Instacart.
+    Instacart tarafından sağlanan 'train' değerlendirme setine dayanarak müşteri kaybı etiketleri oluşturur.
     
-    New Strategy (Leakage-Free):
-    1. TARGET (Label): The 'train' set rows represent the users' NEXT order.
-       - If 'days_since_prior_order' in 'train' set >= churn_threshold -> CHURN (1)
-       - If 'days_since_prior_order' in 'train' set < churn_threshold -> ACTIVE (0)
+    Yeni Strateji (Sızıntısız):
+    1. HEDEF (Etiket): 'train' setindeki satırlar, kullanıcıların BİR SONRAKİ siparişini temsil eder.
+       - Eğer 'train' setindeki 'days_since_prior_order' >= churn_threshold ise -> KAYIP (1)
+       - Eğer 'train' setindeki 'days_since_prior_order' < churn_threshold ise -> AKTİF (0)
        
-    2. FEATURES: Calculated ONLY from 'prior' set rows.
+    2. ÖZELLİKLER: SADECE 'prior' setindeki satırlardan hesaplanır.
     """
     
     def __init__(self, churn_threshold_days: int = 30):
         """
         Args:
-            churn_threshold_days: If days since prior order >= this, user is churned.
-                                  Note: Instacart data caps this at 30, so 30 means '30+ days'.
+            churn_threshold_days: Önceki siparişten bu yana geçen gün sayısı bu değere eşit veya büyükse, kullanıcı kayıp olarak kabul edilir.
+                                  Not: Instacart verileri bu değeri 30 ile sınırlar, bu nedenle 30, '30+ gün' anlamına gelir.
         """
         self.churn_threshold = churn_threshold_days
-        logger.info(f"🎯 Churn Definition Strategy: Next Order Prediction")
-        logger.info(f"   Threshold: days_since_prior_order >= {self.churn_threshold}")
+        logger.info(f"Müşteri Kaybı Tanımlama Stratejisi: Sonraki Sipariş Tahmini")
+        logger.info(f"Eşik Değer: days_since_prior_order >= {self.churn_threshold}")
 
     def create_churn_labels(self, orders_df: pd.DataFrame) -> pd.DataFrame:
         """
-        Creates labels using ONLY the 'train' set rows which represent the 'next' order.
+        SADECE 'sonraki' siparişi temsil eden 'train' seti satırlarını kullanarak etiketler oluşturur.
         
         Args:
-            orders_df: The full orders dataframe (must contain 'eval_set' column).
+            orders_df: Tam orders veri çerçevesi ('eval_set' sütununu içermelidir).
             
         Returns:
-            A dataframe with ['user_id', 'is_churn', 'days_to_next_order'].
+            ['user_id', 'is_churn', 'days_to_next_order'] sütunlarını içeren bir veri çerçevesi.
         """
-        logger.info("🏷️  Creating churn labels using 'train' set target...")
+        logger.info("'train' seti hedefi kullanılarak müşteri kaybı etiketleri oluşturuluyor...")
         
-        # 1. Filter only the 'train' set rows. These are our targets.
-        # Note: 'test' set rows have no labels (Kaggle submission), so we ignore them here.
+        # 1. Yalnızca 'train' seti satırlarını filtrele. Bunlar bizim hedeflerimiz.
+        # Not: 'test' seti satırlarının etiketi yoktur (Kaggle gönderimi için), bu yüzden burada onları yok sayıyoruz.
         train_targets = orders_df[orders_df['eval_set'] == 'train'].copy()
         
         if train_targets.empty:
-            logger.error("❌ No 'train' rows found in orders_df! Ensure data is loaded correctly.")
-            raise ValueError("No 'train' evaluation set found.")
+            logger.error("orders_df içinde 'train' satırı bulunamadı! Verilerin doğru yüklendiğinden emin olun.")
+            raise ValueError("'train' değerlendirme seti bulunamadı.")
 
-        # 2. Define Target Variable
-        # Handle NaN (first orders shouldn't be in train set, but good for safety)
+        # 2. Hedef Değişkeni Tanımla
+        # NaN değerlerini işle (ilk siparişler train setinde olmamalı, ama güvenlik için iyidir)
         train_targets['days_since_prior_order'] = train_targets['days_since_prior_order'].fillna(0)
         
-        # Create label: 1 if churned (>= 30 days), 0 if active (< 30 days)
+        # Etiket oluştur: kayıp ise 1 (>= 30 gün), aktif ise 0 (< 30 gün)
         train_targets['is_churn'] = (
             train_targets['days_since_prior_order'] >= self.churn_threshold
         ).astype(int)
         
-        # 3. Keep relevant columns
-        # We keep 'days_since_prior_order' as 'days_to_next_order' for analysis
+        # 3. İlgili sütunları tut
+        # Analiz için 'days_since_prior_order' sütununu 'days_to_next_order' olarak saklıyoruz
         labels_df = train_targets[['user_id', 'is_churn', 'days_since_prior_order']].rename(
             columns={'days_since_prior_order': 'days_to_next_order'}
         )
         
-        # 4. Statistics
+        # 4. İstatistikler
         self._print_stats(labels_df)
         
         return labels_df
 
     def _print_stats(self, labels_df: pd.DataFrame):
-        """Helper to print label distribution statistics."""
+        """Etiket dağılım istatistiklerini yazdırmak için yardımcı fonksiyon."""
         total_users = len(labels_df)
         churn_cnt = labels_df['is_churn'].sum()
         active_cnt = total_users - churn_cnt
         churn_rate = churn_cnt / total_users
         
         logger.info(f"\n{'='*80}")
-        logger.info(f"CHURN LABEL STATISTICS (Ground Truth)")
+        logger.info(f"MÜŞTERİ KAYBI ETİKET İSTATİSTİKLERİ (Gerçek Değerler)")
         logger.info(f"{'='*80}")
-        logger.info(f"Total Target Users:      {total_users:>10,}")
-        logger.info(f"Churned (>=30 days):     {churn_cnt:>10,} ({churn_rate:.2%})")
-        logger.info(f"Active (<30 days):       {active_cnt:>10,} ({1-churn_rate:.2%})")
+        logger.info(f"Toplam Hedef Kullanıcı:      {total_users:>10,}")
+        logger.info(f"Kaybedilen (>=30 gün):     {churn_cnt:>10,} ({churn_rate:.2%})")
+        logger.info(f"Aktif (<30 gün):       {active_cnt:>10,} ({1-churn_rate:.2%})")
         logger.info(f"{'='*80}\n")
 
     def split_train_test_stratified(self, 
@@ -96,13 +96,13 @@ class ChurnLabelCreator:
                                     test_size: float = 0.2,
                                     random_state: int = 42):
         """
-        Performs stratified train-test split on the final dataset.
-        Since we rely on the dataset's inherent 'train' split for labels,
-        we just split users randomly here to validate our model.
+        Nihai veri setinde katmanlı train-test ayrımı gerçekleştirir.
+        Etiketler için veri setinin kendi 'train' ayrımına güvendiğimizden,
+        modelimizi doğrulamak için burada kullanıcıları rastgele ayırıyoruz.
         """
         from sklearn.model_selection import train_test_split
         
-        logger.info(f"✂️  Splitting data (Test size: {test_size}, Stratified)...")
+        logger.info(f"Veri ayrılıyor (Test boyutu: {test_size}, Katmanlı)...")
         
         X = master_df.drop(['user_id', 'is_churn', 'eval_set', 'days_to_next_order'], axis=1, errors='ignore')
         y = master_df['is_churn']
@@ -110,11 +110,11 @@ class ChurnLabelCreator:
         return train_test_split(X, y, test_size=test_size, random_state=random_state, stratify=y)
 
 
-# Example usage for testing
+# Mantığı test etmek için örnek kullanım
 if __name__ == "__main__":
-    # Mock data creation for testing logic
-    # In real usage, load actual data
-    print("🧪 Testing ChurnLabelCreator logic...")
+    # Test mantığı için sahte veri oluşturma
+    # Gerçek kullanımda, gerçek verileri yükleyin
+    print("ChurnLabelCreator mantığı test ediliyor...")
     
     mock_data = pd.DataFrame({
         'user_id': [1, 2, 3, 4, 5],
@@ -125,12 +125,12 @@ if __name__ == "__main__":
     creator = ChurnLabelCreator(churn_threshold_days=30)
     labels = creator.create_churn_labels(mock_data)
     
-    print("\nResulting Labels:")
+    print("\nSonuç Etiketleri:")
     print(labels)
     
-    # Expected: 
-    # User 1: Churn (30 >= 30)
-    # User 2: Active (7 < 30)
-    # User 3: Active (14 < 30)
-    # User 4: Ignored (prior)
-    # User 5: Ignored (test)
+    # Beklenen: 
+    # Kullanıcı 1: Kayıp (30 >= 30)
+    # Kullanıcı 2: Aktif (7 < 30)
+    # Kullanıcı 3: Aktif (14 < 30)
+    # Kullanıcı 4: Yok sayıldı (prior)
+    # Kullanıcı 5: Yok sayıldı (test)

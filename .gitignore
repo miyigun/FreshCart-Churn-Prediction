@@ -20,7 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
+# Sanal Ortam
 venv/
 env/
 ENV/
@@ -30,7 +30,7 @@ ENV/
 .ipynb_checkpoints
 *.ipynb_checkpoints/
 
-# Data files (large files)
+# Veri dosyaları (büyük dosyalar)
 data/raw/*.csv
 data/raw/*.parquet
 data/processed/*.csv
@@ -43,7 +43,7 @@ data/external/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 
-# Models (large files)
+# Modeller (büyük dosyalar)
 models/*
 !models/final_model_optimized.pkl
 !models/best_params.json
@@ -55,7 +55,7 @@ models/*.h5
 models/*.pb
 models/*.onnx
 
-# Logs
+# Günlük Kayıtları (Loglar)
 logs/*.log
 *.log
 
@@ -67,7 +67,7 @@ logs/*.log
 *~
 .DS_Store
 
-# Environment variables
+# Ortam Değişkenleri
 .env
 .env.local
 
@@ -83,14 +83,14 @@ htmlcov/
 # Streamlit
 .streamlit/secrets.toml
 
-# Temporary files
+# Geçici dosyalar
 tmp/
 temp/
 *.tmp
 
-# OS
+# İşletim Sistemi (OS)
 Thumbs.db
 .DS_Store
 
-# Keep empty directories
+# Boş dizinleri tut
 !.gitkeep

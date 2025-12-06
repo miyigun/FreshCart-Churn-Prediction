@@ -1,7 +1,7 @@
 """
-FreshCart Churn Prediction - Configuration File
+FreshCart Churn Prediction - Yapılandırma Dosyası
 ================================================
-All project settings, paths, and business rules are defined in this file.
+Tüm proje ayarları, yolları ve iş kuralları bu dosyada tanımlanmıştır.
 """
 
 from pathlib import Path
@@ -9,31 +9,31 @@ from typing import Dict, List
 import os
 
 # ============================================================================
-# PROJECT PATHS
+# PROJE YOLLARI
 # ============================================================================
 
-# Root directory
+# Kök dizin
 ROOT_DIR = Path(__file__).parent.parent
 DATA_DIR = ROOT_DIR / "data"
 MODEL_DIR = ROOT_DIR / "models"
 LOG_DIR = ROOT_DIR / "logs"
 NOTEBOOK_DIR = ROOT_DIR / "notebooks"
 
-# Data subdirectories
+# Veri alt dizinleri
 RAW_DATA_DIR = DATA_DIR / "raw"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 EXTERNAL_DATA_DIR = DATA_DIR / "external"
 
-# Create directories if they don't exist
+# Dizinler mevcut değilse oluştur
 for directory in [DATA_DIR, MODEL_DIR, LOG_DIR, RAW_DATA_DIR, 
                   PROCESSED_DATA_DIR, EXTERNAL_DATA_DIR]:
     directory.mkdir(parents=True, exist_ok=True)
 
 # ============================================================================
-# DATA FILES
+# VERİ DOSYALARI
 # ============================================================================
 
-# Raw data files (Instacart)
+# Ham veri dosyaları (Instacart)
 RAW_DATA_FILES = {
     'orders': RAW_DATA_DIR / 'orders.csv',
     'order_products_prior': RAW_DATA_DIR / 'order_products__prior.csv',
@@ -43,7 +43,7 @@ RAW_DATA_FILES = {
     'departments': RAW_DATA_DIR / 'departments.csv'
 }
 
-# Processed data files
+# İşlenmiş veri dosyaları
 PROCESSED_DATA_FILES = {
     'train_features': PROCESSED_DATA_DIR / 'train_features.parquet',
     'test_features': PROCESSED_DATA_DIR / 'test_features.parquet',
@@ -53,27 +53,27 @@ PROCESSED_DATA_FILES = {
 }
 
 # ============================================================================
-# BUSINESS RULES & DEFINITIONS
+# İŞ KURALLARI VE TANIMLARI
 # ============================================================================
 
-# Churn Definition
+# Müşteri Kaybı (Churn) Tanımı
 CHURN_DEFINITION = {
-    'days_threshold': 30,  # Customers who haven't ordered in more than 30 days are considered churned
-    'min_orders': 3,       # Must have at least 3 orders in their history
-    'observation_window': 90,  # Data from the last 90 days
-    'prediction_horizon': 14   # Predict for the next 14 days
+    'days_threshold': 30,  # 30 günden fazla süredir sipariş vermeyen müşteriler kayıp olarak kabul edilir
+    'min_orders': 3,       # Geçmişinde en az 3 siparişi olmalı
+    'observation_window': 90,  # Son 90 günlük veri
+    'prediction_horizon': 14   # Sonraki 14 gün için tahmin yap
 }
 
-# Business Metrics
+# İş Metrikleri
 BUSINESS_METRICS = {
-    'avg_customer_value': 150,     # Average customer value ($)
-    'avg_order_value': 50,         # Average order value ($)
-    'retention_cost': 10,          # Retention campaign cost ($)
-    'acquisition_cost': 45,        # New customer acquisition cost ($)
-    'target_churn_rate': 0.18      # Target churn rate
+    'avg_customer_value': 150,     # Ortalama müşteri değeri ($)
+    'avg_order_value': 50,         # Ortalama sipariş değeri ($)
+    'retention_cost': 10,          # Müşteriyi elde tutma kampanya maliyeti ($)
+    'acquisition_cost': 45,        # Yeni müşteri kazanım maliyeti ($)
+    'target_churn_rate': 0.18      # Hedef müşteri kaybı oranı
 }
 
-# Feature Groups
+# Özellik Grupları
 FEATURE_GROUPS = {
     'rfm_features': [
         'recency', 'frequency', 'monetary',
@@ -97,21 +97,21 @@ FEATURE_GROUPS = {
 }
 
 # ============================================================================
-# MODEL CONFIGURATION
+# MODEL YAPILANDIRMASI
 # ============================================================================
 
-# Random seed for reproducibility
+# Tekrarlanabilirlik için rastgelelik tohumu (seed)
 RANDOM_STATE = 42
 
-# Train-test split
+# Eğitim-test ayrımı
 TRAIN_TEST_SPLIT = {
     'test_size': 0.2,
     'validation_size': 0.1,
     'stratify': True,
-    'method': 'time_based'  # time_based or random
+    'method': 'time_based'  # zaman_tabanlı veya rastgele
 }
 
-# Model Parameters - Baseline
+# Model Parametreleri - Baseline
 BASELINE_PARAMS = {
     'logistic_regression': {
         'max_iter': 1000,
@@ -127,7 +127,7 @@ BASELINE_PARAMS = {
     }
 }
 
-# Model Parameters - Advanced
+# Model Parametreleri - Gelişmiş
 ADVANCED_MODEL_PARAMS = {
     'lightgbm': {
         'objective': 'binary',
@@ -160,23 +160,23 @@ ADVANCED_MODEL_PARAMS = {
     }
 }
 
-# Hyperparameter Optimization (Optuna)
+# Hiperparametre Optimizasyonu (Optuna)
 OPTUNA_CONFIG = {
     'n_trials': 100,
-    'timeout': 3600,  # 1 hour
+    'timeout': 3600,  # 1 saat
     'n_jobs': -1,
     'show_progress_bar': True
 }
 
-# Feature Selection
+# Özellik Seçimi
 FEATURE_SELECTION = {
-    'method': 'shap',  # shap, importance, recursive
+    'method': 'shap',  # shap, önem (importance), özyinelemeli (recursive)
     'n_features': 50,
     'threshold': 0.01
 }
 
 # ============================================================================
-# EVALUATION METRICS
+# DEĞERLENDİRME METRİKLERİ
 # ============================================================================
 
 EVALUATION_METRICS = [
@@ -188,50 +188,50 @@ EVALUATION_METRICS = [
     'average_precision'
 ]
 
-# Threshold for classification
+# Sınıflandırma için eşik değeri
 CLASSIFICATION_THRESHOLD = 0.5
 
-# Business metric thresholds
+# İş metriği eşikleri
 PERFORMANCE_THRESHOLDS = {
-    'min_precision': 0.80,  # Minimum precision
-    'min_recall': 0.75,     # Minimum recall
-    'min_f1': 0.77,         # Minimum F1
+    'min_precision': 0.80,  # Minimum hassasiyet (precision)
+    'min_recall': 0.75,     # Minimum duyarlılık (recall)
+    'min_f1': 0.77,         # Minimum F1 skoru
     'min_auc': 0.85         # Minimum AUC
 }
 
 # ============================================================================
-# PREPROCESSING
+# ÖN İŞLEME
 # ============================================================================
 
-# Missing value handling
+# Eksik değer yönetimi
 MISSING_VALUE_STRATEGY = {
-    'numeric': 'median',  # mean, median, mode
+    'numeric': 'median',  # ortalama (mean), medyan (median), mod (mode)
     'categorical': 'mode'
 }
 
-# Outlier detection
+# Aykırı değer tespiti
 OUTLIER_CONFIG = {
     'method': 'iqr',  # iqr, zscore, isolation_forest
     'threshold': 3.0
 }
 
-# Scaling
+# Ölçeklendirme
 SCALING_CONFIG = {
     'method': 'standard',  # standard, minmax, robust
-    'columns': 'numeric'   # numeric, all, custom
+    'columns': 'numeric'   # sayısal (numeric), tümü (all), özel (custom)
 }
 
-# Encoding
+# Kodlama (Encoding)
 ENCODING_CONFIG = {
     'categorical_method': 'target',  # onehot, label, target, binary
     'high_cardinality_threshold': 10
 }
 
 # ============================================================================
-# API & DEPLOYMENT
+# API VE DAĞITIM
 # ============================================================================
 
-# API Configuration
+# API Yapılandırması
 API_CONFIG = {
     'host': '0.0.0.0',
     'port': 8000,
@@ -239,7 +239,7 @@ API_CONFIG = {
     'log_level': 'info'
 }
 
-# Model serving
+# Model sunma
 MODEL_SERVING = {
     'model_path': MODEL_DIR / 'final_model.pkl',
     'preprocessor_path': MODEL_DIR / 'preprocessor.pkl',
@@ -248,24 +248,24 @@ MODEL_SERVING = {
 }
 
 # ============================================================================
-# MONITORING & LOGGING
+# İZLEME VE GÜNLÜK KAYDI
 # ============================================================================
 
-# Logging configuration
+# Günlük kaydı (logging) yapılandırması
 LOGGING_CONFIG = {
     'level': 'INFO',
     'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     'log_file': LOG_DIR / 'freshcart_churn.log'
 }
 
-# Monitoring metrics
+# İzleme metrikleri
 MONITORING_METRICS = {
     'model_performance': ['precision', 'recall', 'f1', 'auc'],
     'business_metrics': ['churn_rate', 'retention_rate', 'campaign_roi'],
     'system_metrics': ['response_time', 'error_rate', 'throughput']
 }
 
-# Data drift detection
+# Veri kayması (data drift) tespiti
 DATA_DRIFT_CONFIG = {
     'enabled': True,
     'check_interval': 'daily',
@@ -273,7 +273,7 @@ DATA_DRIFT_CONFIG = {
 }
 
 # ============================================================================
-# VISUALIZATION
+# GÖRSELLEŞTİRME
 # ============================================================================
 
 VISUALIZATION_CONFIG = {
@@ -284,16 +284,16 @@ VISUALIZATION_CONFIG = {
     'save_format': 'png'
 }
 
-# Plot directories
+# Çizim dizinleri
 PLOT_DIR = ROOT_DIR / "plots"
 PLOT_DIR.mkdir(exist_ok=True)
 
 # ============================================================================
-# UTILITY FUNCTIONS
+# YARDIMCI FONKSİYONLAR
 # ============================================================================
 
 def get_config() -> Dict:
-    """Return all configuration as a dictionary"""
+    """Tüm yapılandırmayı bir sözlük olarak döndürür"""
     return {
         'paths': {
             'root': ROOT_DIR,
@@ -308,17 +308,17 @@ def get_config() -> Dict:
     }
 
 def print_config():
-    """Print a summary of the configuration"""
+    """Yapılandırmanın bir özetini yazdırır"""
     print("=" * 80)
-    print("FreshCart Churn Prediction - Configuration Summary")
+    print("FreshCart Müşteri Kaybı Tahmini - Yapılandırma Özeti")
     print("=" * 80)
-    print(f"\n📁 Project Root: {ROOT_DIR}")
-    print(f"📊 Data Directory: {DATA_DIR}")
-    print(f"🤖 Models Directory: {MODEL_DIR}")
-    print(f"\n🎯 Churn Definition: {CHURN_DEFINITION['days_threshold']} days")
-    print(f"💰 Avg Customer Value: ${BUSINESS_METRICS['avg_customer_value']}")
-    print(f"🎲 Random State: {RANDOM_STATE}")
-    print(f"\n✅ Configuration loaded successfully!")
+    print(f"\n Proje Kök Dizini: {ROOT_DIR}")
+    print(f" Veri Dizini: {DATA_DIR}")
+    print(f" Modeller Dizini: {MODEL_DIR}")
+    print(f"\n Müşteri Kaybı Tanımı: {CHURN_DEFINITION['days_threshold']} gün")
+    print(f"Ort. Müşteri Değeri: ${BUSINESS_METRICS['avg_customer_value']}")
+    print(f"Rastgelelik Durumu: {RANDOM_STATE}")
+    print(f"\n Yapılandırma başarıyla yüklendi!")
     print("=" * 80)
 
 

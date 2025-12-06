@@ -1,7 +1,7 @@
 """
-RFM Feature Engineering Module
-===============================
-Creates Recency, Frequency, and Monetary features.
+RFM Özellik Mühendisliği Modülü
+================================
+Yenilik (Recency), Sıklık (Frequency) ve Parasal (Monetary) özellikleri oluşturur.
 """
 
 import pandas as pd
@@ -15,12 +15,12 @@ logger = logging.getLogger(__name__)
 
 class RFMFeatureEngineer:
     """
-    Creates RFM (Recency, Frequency, Monetary) features.
+    RFM (Yenilik, Sıklık, Parasal) özellikleri oluşturur.
     
-    Features:
-    - Recency: Days since the last order.
-    - Frequency: Order frequency.
-    - Monetary: Monetary value (using basket size as a proxy).
+    Özellikler:
+    - Yenilik (Recency): Son siparişten bu yana geçen gün sayısı.
+    - Sıklık (Frequency): Sipariş sıklığı.
+    - Parasal (Monetary): Parasal değer (sepet büyüklüğünü vekil olarak kullanarak).
     """
     
     def __init__(self):
@@ -30,51 +30,51 @@ class RFMFeatureEngineer:
                                 orders_df: pd.DataFrame,
                                 order_products_df: pd.DataFrame) -> pd.DataFrame:
         """
-        Create all RFM features.
+        Tüm RFM özelliklerini oluşturur.
         
         Args:
-            orders_df: The orders dataframe.
-            order_products_df: The order products dataframe.
+            orders_df: Siparişler veri çerçevesi.
+            order_products_df: Sipariş ürünleri veri çerçevesi.
             
         Returns:
-            A dataframe with user-level RFM features.
+            Kullanıcı düzeyinde RFM özelliklerine sahip bir veri çerçevesi.
         """
-        logger.info("🔧 Creating RFM features...")
+        logger.info("RFM özellikleri oluşturuluyor...")
         
-        # Recency features
+        # Yenilik özellikleri
         recency_features = self.create_recency_features(orders_df)
         
-        # Frequency features
+        # Sıklık özellikleri
         frequency_features = self.create_frequency_features(orders_df)
         
-        # Monetary features (using basket size as a proxy)
+        # Parasal özellikler (sepet büyüklüğünü vekil olarak kullanarak)
         monetary_features = self.create_monetary_features(orders_df, order_products_df)
         
-        # Merge all
+        # Hepsini birleştir
         rfm_features = recency_features\
             .merge(frequency_features, on='user_id', how='outer')\
             .merge(monetary_features, on='user_id', how='outer')
         
-        # Fill NaN with 0
+        # NaN değerlerini 0 ile doldur
         rfm_features = rfm_features.fillna(0)
         
         self.feature_names = [col for col in rfm_features.columns if col != 'user_id']
         
-        logger.info(f"✅ Created {len(self.feature_names)} RFM features")
-        logger.info(f"   Features: {self.feature_names}")
+        logger.info(f"{len(self.feature_names)} adet RFM özelliği oluşturuldu")
+        logger.info(f"Özellikler: {self.feature_names}")
         
         return rfm_features
     
     def create_recency_features(self, orders_df: pd.DataFrame) -> pd.DataFrame:
         """
-        Recency features.
+        Yenilik özellikleri.
         
-        Features:
-        - days_since_last_order: Days since the last order.
-        - days_since_first_order: Days since the first order.
-        - customer_age_days: Customer age in days.
+        Özellikler:
+        - days_since_last_order: Son siparişten bu yana geçen gün sayısı.
+        - days_since_first_order: İlk siparişten bu yana geçen gün sayısı.
+        - customer_age_days: Müşteri yaşı (gün olarak).
         """
-        logger.info("   Creating recency features...")
+        logger.info("Yenilik özellikleri oluşturuluyor...")
         
         user_recency = orders_df.groupby('user_id').agg({
             'order_number': ['min', 'max'],
@@ -89,20 +89,20 @@ class RFMFeatureEngineer:
             'total_days_since_prior'
         ]
         
-        # Global max order number (reference point - "now")
+        # Genel maksimum sipariş numarası (referans noktası - "şimdi")
         global_max = orders_df['order_number'].max()
         
-        # Recency calculations
+        # Yenilik hesaplamaları
         user_recency['orders_since_last'] = global_max - user_recency['last_order_number']
-        user_recency['days_since_last_order'] = user_recency['orders_since_last'] * 7  # Estimate
+        user_recency['days_since_last_order'] = user_recency['orders_since_last'] * 7  # Tahmin
         
         user_recency['total_order_span'] = user_recency['last_order_number'] - user_recency['first_order_number']
-        user_recency['customer_age_days'] = user_recency['total_order_span'] * 7  # Estimate
+        user_recency['customer_age_days'] = user_recency['total_order_span'] * 7  # Tahmin
         
-        # Days since first order
+        # İlk siparişten bu yana geçen günler
         user_recency['days_since_first_order'] = user_recency['customer_age_days'] + user_recency['days_since_last_order']
         
-        # Select final features
+        # Nihai özellikleri seç
         recency_cols = [
             'user_id',
             'days_since_last_order',
@@ -115,15 +115,15 @@ class RFMFeatureEngineer:
     
     def create_frequency_features(self, orders_df: pd.DataFrame) -> pd.DataFrame:
         """
-        Frequency features.
+        Sıklık özellikleri.
         
-        Features:
-        - total_orders: Total number of orders.
-        - orders_per_day: Average orders per day.
-        - order_frequency: Order frequency score.
-        - order_regularity: Order regularity (low std means more regular).
+        Özellikler:
+        - total_orders: Toplam sipariş sayısı.
+        - orders_per_day: Günlük ortalama sipariş sayısı.
+        - order_frequency: Sipariş sıklığı puanı.
+        - order_regularity: Sipariş düzenliliği (düşük standart sapma daha düzenli demektir).
         """
-        logger.info("   Creating frequency features...")
+        logger.info("Sıklık özellikleri oluşturuluyor...")
         
         user_frequency = orders_df.groupby('user_id').agg({
             'order_id': 'count',
@@ -142,24 +142,24 @@ class RFMFeatureEngineer:
             'max_days_between_orders'
         ]
         
-        # Derived features
+        # Türetilmiş özellikler
         user_frequency['order_span'] = user_frequency['last_order_number'] - user_frequency['first_order_number']
         user_frequency['estimated_customer_days'] = user_frequency['order_span'] * 7
         
-        # Orders per day (frequency rate)
+        # Günlük sipariş sayısı (sıklık oranı)
         user_frequency['orders_per_day'] = user_frequency['total_orders'] / (user_frequency['estimated_customer_days'] + 1)
         
-        # Order regularity (coefficient of variation)
+        # Sipariş düzenliliği (değişim katsayısı)
         user_frequency['order_regularity'] = (
             user_frequency['std_days_between_orders'] / 
             (user_frequency['avg_days_between_orders'] + 1)
         )
         
-        # Fill NaN in std (happens when there are only 1-2 orders)
+        # Standart sapmadaki NaN değerlerini doldur (sadece 1-2 sipariş olduğunda olur)
         user_frequency['std_days_between_orders'] = user_frequency['std_days_between_orders'].fillna(0)
         user_frequency['order_regularity'] = user_frequency['order_regularity'].fillna(0)
         
-        # Select final features
+        # Nihai özellikleri seç
         frequency_cols = [
             'user_id',
             'total_orders',
@@ -174,31 +174,31 @@ class RFMFeatureEngineer:
                                  orders_df: pd.DataFrame,
                                  order_products_df: pd.DataFrame) -> pd.DataFrame:
         """
-        Monetary features.
+        Parasal özellikler.
         
-        Note: There is no price information, so we use basket size as a proxy.
+        Not: Fiyat bilgisi olmadığı için sepet büyüklüğünü vekil olarak kullanıyoruz.
         
-        Features:
-        - avg_basket_size: Average basket size (number of products).
-        - total_products_ordered: Total number of products ordered.
-        - avg_unique_products: Average unique products per order.
-        - basket_size_std: Variability of basket size.
+        Özellikler:
+        - avg_basket_size: Ortalama sepet büyüklüğü (ürün sayısı).
+        - total_products_ordered: Sipariş edilen toplam ürün sayısı.
+        - avg_unique_products: Sipariş başına ortalama benzersiz ürün.
+        - basket_size_std: Sepet büyüklüğünün değişkenliği.
         """
-        logger.info("   Creating monetary features (using basket size as a proxy)...")
+        logger.info("Parasal özellikler oluşturuluyor (sepet büyüklüğünü vekil olarak kullanarak)...")
         
-        # Calculate basket size per order
+        # Sipariş başına sepet büyüklüğünü hesapla
         basket_sizes = order_products_df.groupby('order_id').agg({
             'product_id': ['count', 'nunique']
         }).reset_index()
         
         basket_sizes.columns = ['order_id', 'basket_size', 'unique_products_in_order']
         
-        # Merge with orders to get user_id
+        # user_id'yi almak için siparişlerle birleştir
         baskets_with_user = orders_df[['order_id', 'user_id']].merge(
             basket_sizes, on='order_id', how='left'
         )
         
-        # User-level aggregation
+        # Kullanıcı düzeyinde toplama
         user_monetary = baskets_with_user.groupby('user_id').agg({
             'basket_size': ['mean', 'sum', 'std', 'min', 'max'],
             'unique_products_in_order': ['mean', 'sum']
@@ -215,16 +215,16 @@ class RFMFeatureEngineer:
             'total_unique_products_ordered'
         ]
         
-        # Fill NaN
+        # NaN değerlerini doldur
         user_monetary['basket_size_std'] = user_monetary['basket_size_std'].fillna(0)
         
-        # Basket size consistency (lower is more consistent)
+        # Sepet büyüklüğü tutarlılığı (düşük olması daha tutarlı demektir)
         user_monetary['basket_size_cv'] = (
             user_monetary['basket_size_std'] / 
             (user_monetary['avg_basket_size'] + 1)
         )
         
-        # Select final features
+        # Nihai özellikleri seç
         monetary_cols = [
             'user_id',
             'avg_basket_size',
@@ -239,22 +239,22 @@ class RFMFeatureEngineer:
     
     def create_rfm_score(self, rfm_features: pd.DataFrame) -> pd.DataFrame:
         """
-        Calculate the RFM score (on a scale of 1-5).
+        RFM skorunu hesaplar (1-5 arası bir ölçekte).
         
-        RFM Score = Recency Score + Frequency Score + Monetary Score
-        A high score indicates a valuable customer.
+        RFM Skoru = Yenilik Skoru + Sıklık Skoru + Parasal Skoru
+        Yüksek bir skor, değerli bir müşteriyi gösterir.
         
         Args:
-            rfm_features: The RFM features dataframe.
+            rfm_features: RFM özellikleri veri çerçevesi.
             
         Returns:
-            A dataframe with RFM scores.
+            RFM skorlarını içeren bir veri çerçevesi.
         """
-        logger.info("📊 Calculating RFM scores...")
+        logger.info("RFM skorları hesaplanıyor...")
         
         rfm_scored = rfm_features.copy()
         
-        # Recency score (lower is better, so we invert the labels)
+        # Yenilik skoru (düşük olması daha iyidir, bu yüzden etiketleri ters çeviriyoruz)
         rfm_scored['recency_score'] = pd.qcut(
             rfm_scored['days_since_last_order'], 
             q=5, 
@@ -262,7 +262,7 @@ class RFMFeatureEngineer:
             duplicates='drop'
         )
         
-        # Frequency score (higher is better)
+        # Sıklık skoru (yüksek olması daha iyidir)
         rfm_scored['frequency_score'] = pd.qcut(
             rfm_scored['total_orders'], 
             q=5, 
@@ -270,7 +270,7 @@ class RFMFeatureEngineer:
             duplicates='drop'
         )
         
-        # Monetary score (higher is better)
+        # Parasal skor (yüksek olması daha iyidir)
         rfm_scored['monetary_score'] = pd.qcut(
             rfm_scored['avg_basket_size'], 
             q=5, 
@@ -278,60 +278,60 @@ class RFMFeatureEngineer:
             duplicates='drop'
         )
         
-        # Convert to int
+        # Tam sayıya dönüştür
         rfm_scored['recency_score'] = rfm_scored['recency_score'].astype(int)
         rfm_scored['frequency_score'] = rfm_scored['frequency_score'].astype(int)
         rfm_scored['monetary_score'] = rfm_scored['monetary_score'].astype(int)
         
-        # Overall RFM score
+        # Genel RFM skoru
         rfm_scored['rfm_score'] = (
             rfm_scored['recency_score'] + 
             rfm_scored['frequency_score'] + 
             rfm_scored['monetary_score']
         )
         
-        # RFM segment (simplified)
+        # RFM segmenti (basitleştirilmiş)
         rfm_scored['rfm_segment'] = pd.cut(
             rfm_scored['rfm_score'],
             bins=[0, 6, 9, 12, 15],
-            labels=['At Risk', 'Promising', 'Loyal', 'Champions']
+            labels=['Risk Altında', 'Umut Veren', 'Sadık', 'Şampiyonlar']
         )
         
-        logger.info(f"✅ RFM scores calculated")
-        logger.info(f"\nRFM Segment Distribution:")
+        logger.info(f"RFM skorları hesaplandı")
+        logger.info(f"\nRFM Segment Dağılımı:")
         print(rfm_scored['rfm_segment'].value_counts().sort_index())
         
         return rfm_scored
     
     def get_feature_names(self) -> List[str]:
-        """Return a list of the feature names."""
+        """Özellik adlarının bir listesini döndürür."""
         return self.feature_names
 
 
 def create_rfm_features_pipeline(orders_df: pd.DataFrame,
                                  order_products_df: pd.DataFrame) -> pd.DataFrame:
     """
-    A quick pipeline to create all RFM features.
+    Tüm RFM özelliklerini oluşturmak için hızlı bir işlem hattı (pipeline).
     
     Args:
-        orders_df: The orders dataframe.
-        order_products_df: The order products dataframe.
+        orders_df: Siparişler veri çerçevesi.
+        order_products_df: Sipariş ürünleri veri çerçevesi.
         
     Returns:
-        A dataframe with user-level RFM features and scores.
+        Kullanıcı düzeyinde RFM özellikleri ve skorları içeren bir veri çerçevesi.
     """
     engineer = RFMFeatureEngineer()
     
-    # Create features
+    # Özellikleri oluştur
     rfm_features = engineer.create_all_rfm_features(orders_df, order_products_df)
     
-    # Add RFM scores
+    # RFM skorlarını ekle
     rfm_with_scores = engineer.create_rfm_score(rfm_features)
     
     return rfm_with_scores
 
 
-# Example usage
+# Örnek kullanım
 if __name__ == "__main__":
     from pathlib import Path
     import sys
@@ -339,7 +339,7 @@ if __name__ == "__main__":
     from src.data.data_loader import InstacartDataLoader
     from src.config import RAW_DATA_DIR
     
-    # Load data
+    # Veriyi yükle
     loader = InstacartDataLoader(RAW_DATA_DIR)
     data = loader.load_all_data()
     
@@ -349,13 +349,13 @@ if __name__ == "__main__":
         data['order_products_train']
     ])
     
-    # Create RFM features
+    # RFM özelliklerini oluştur
     rfm_features = create_rfm_features_pipeline(orders_df, order_products)
     
-    print("\n📊 RFM Features Sample:")
+    print("\nRFM Özellikleri Örneği:")
     print(rfm_features.head(10))
     
-    print("\n📈 RFM Features Statistics:")
+    print("\nRFM Özellikleri İstatistikleri:")
     print(rfm_features.describe())
     
-    print("\n✅ RFM features created successfully!")
+    print("\nRFM özellikleri başarıyla oluşturuldu!")

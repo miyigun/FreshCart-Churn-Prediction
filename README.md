@@ -6,168 +6,169 @@
 
 **📖 Medium Article:** [From Data to Dollars – Full Story on Medium](https://medium.com/@miyigun2017/from-data-to-dollars-building-an-end-to-end-customer-churn-prediction-system-6971c531edc6)
 
-> **Zero2End Machine Learning Bootcamp - Final Project**
+> **Zero2End Machine Learning Bootcamp - Final Projesi**
 > 
-> An end-to-end machine learning project to predict customer churn in the e-commerce sector.
-> **Impact:** Projected Annual Revenue Protection of **$1.8M+**
+> E-ticaret sektöründe müşteri kaybını tahmin etmek için uçtan uca bir makine öğrenmesi projesi.
+> **Etki:** Tahmini Yıllık Gelir Koruması **1.8 Milyon Dolar+**
 
 ---
 
 <p align="center">
   <a href="docs/FreshCart_Executive_Presentation.pptx">
-    <img src="https://img.shields.io/badge/PowerPoint-Download%20Executive%20Presentation-b03c2e?style=for-the-badge&logo=microsoftpowerpoint&logoColor=white" alt="Download Presentation">
+    <img src="https://img.shields.io/badge/PowerPoint-Download%20Executive%20Presentation-b03c2e?style=for-the-badge&logo=microsoftpowerpoint&logoColor=white" alt="Sunumu İndir">
   </a>
 </p>
 
-> **Note for Stakeholders:** A concise executive presentation outlining the business problem, solution strategy, financial impact ($1.8M ROI), and operational roadmap is available above.
+> **Paydaşlar İçin Not:** İş problemini, çözüm stratejisini, finansal etkiyi (1.8 Milyon Dolar yatırım getirisi) ve operasyonel yol haritasını özetleyen kısa bir yönetici sunumu yukarıda mevcuttur.
 
 ---
 
-## 📋 About The Project
+## 📋 Proje Hakkında
 
-**FreshCart** is an online grocery and food delivery platform. In this project, we have developed a machine learning system that predicts customers at risk of churning **14 days in advance**.
+**FreshCart**, online bir market ve gıda dağıtım platformudur. Bu projede, müşteri kaybı riski taşıyan müşterileri **14 gün önceden** tahmin eden bir makine öğrenmesi sistemi geliştirdik.
 
-### 🎯 Business Problem
+### 🎯 İş Problemi
 
-In the last 6 months, our customer churn rate has increased from 18% to 23%. Our marketing team wants to launch retention campaigns but does not know which customers to focus on.
+Son 6 ayda müşteri kayıp oranımız %18'den %23'e yükseldi. Pazarlama ekibimiz müşteri tutma kampanyaları başlatmak istiyor ancak hangi müşterilere odaklanacaklarını bilmiyor.
 
-**Our Goal:**
-- Predict churn risk with high precision.
-- Identify customers with high-risk scores before they leave.
-- Develop proactive intervention strategies.
-- Optimize marketing budget by targeting only at-risk customers.
+**Amacımız:**
+- Müşteri kaybı riskini yüksek hassasiyetle tahmin etmek.
+- Yüksek risk puanına sahip müşterileri ayrılmadan önce belirlemek.
+- Proaktif müdahale stratejileri geliştirmek.
+- Sadece risk altındaki müşterileri hedefleyerek pazarlama bütçesini optimize etmek.
 
-### 💡 Solution
+### 💡 Çözüm
 
-Using Instacart's dataset of over 3 million orders, we analyzed customer behavior patterns to develop a churn prediction model.
+Instacart'ın 3 milyondan fazla sipariş içeren veri setini kullanarak, müşteri davranış kalıplarını analiz ettik ve bir müşteri kaybı tahmin modeli geliştirdik.
 
-### ⚙️ Problem Formulation (Churn Definition)
+### ⚙️ Problem Formülasyonu (Müşteri Kaybı Tanımı)
 
-To strictly define the churn event and prevent data leakage, we established a time-based windowing strategy:
+Müşteri kaybı olayını kesin olarak tanımlamak ve veri sızıntısını önlemek için, zamana dayalı bir pencereleme stratejisi oluşturduk:
 
-* **Observation Window:** We analyzed customer behavior using historical order data.
-* **Churn Label (Target):** A customer is classified as **"Churned" (1)** if they do not place any order within the **next 30 days** [Check your code: is it 30?] following the observation point. Otherwise, they are **"Active" (0)**.
-* **Prediction Point:** The model generates predictions **14 days** prior to the potential churn event, providing the marketing team a two-week window for intervention.
+*   **Gözlem Penceresi:** Müşteri davranışını geçmiş sipariş verilerini kullanarak analiz ettik.
+*   **Müşteri Kaybı Etiketi (Hedef):** Bir müşteri, gözlem noktasını takip eden **sonraki 30 gün** içinde herhangi bir sipariş vermezse **"Kaybedilmiş" (1)** olarak sınıflandırılır [Kodunuzu kontrol edin: 30 gün mü?]. Aksi takdirde **"Aktif" (0)** olarak kabul edilir.
+*   **Tahmin Noktası:** Model, potansiyel müşteri kaybı olayından **14 gün** önce tahminler üreterek pazarlama ekibine müdahale için iki haftalık bir pencere sağlar.
 
-> **Note:** While EDA showed that customers with *15+ days since the last order* are at high risk (Feature: Recency), the actual *Target Label* is based on future inactivity (Next 30 Days).
+> **Not:** Keşifsel Veri Analizi (EDA), *son siparişten bu yana 15+ gün* geçen müşterilerin yüksek risk altında olduğunu gösterse de (Özellik: Yenilik), asıl *Hedef Etiket* gelecekteki hareketsizliğe (Sonraki 30 Gün) dayanmaktadır.
 
 ---
 
-## 📊 Dataset Information
+## 📊 Veri Seti Bilgileri
 
 **Source:** [Instacart Market Basket Analysis - Kaggle](https://www.kaggle.com/datasets/psparks/instacart-market-basket-analysis/data)
 
-**Specifications:**
-- 📦 **3,421,083 orders**
-- 👥 **206,209 users**
-- 🛒 **49,688 products**
-- 📅 **Timeframe:** ~30 days
-- 💾 **Format:** CSV (6 different files)
+**Özellikler:**
+- 📦 **3,421,083 sipariş**
+- 👥 **206,209 kullanıcı**
+- 🛒 **49,688 ürün**
+- 📅 **Zaman Aralığı:** ~30 gün
+- 💾 **Format:** CSV (6 farklı dosya)
 
 **Data Structure:**
 ```
-- orders.csv              : Order information
-- order_products_*.csv    : Order-product relationships
-- products.csv            : Product details
-- aisles.csv              : Product aisles
-- departments.csv         : Department information
+- orders.csv              : Sipariş bilgileri
+- order_products_*.csv    : Sipariş-ürün ilişkileri
+- products.csv            : Ürün detayları
+- aisles.csv              : Ürün reyonları
+- departments.csv         : Departman bilgileri
 ```
 
-## 🧠 Methodology
+## 🧠 Metodoloji
 
-1.  **Data Preprocessing & Cleaning:** Handling missing values, outlier detection.
-2.  **EDA (Exploratory Data Analysis):** Understanding order patterns, day-of-week trends.
-3.  **Advanced Feature Engineering:**
-    * **RFM Analysis:** Recency, Frequency, Monetary features.
-    * **Behavioral Features:** Purchase velocity, average days between orders.
-    * **Time-Series Trends:** Recency acceleration (is the customer slowing down?).
-    * **Product Diversity:** Exploration rate, unique aisles visited.
-4.  **Leakage Prevention:** Strict time-based train/test splitting (Cutoff strategy).
-5.  **Modeling:** LightGBM, XGBoost, CatBoost (Baseline & Tuned).
-6.  **Optimization:** Hyperparameter tuning with **Optuna**.
-7.  **Evaluation:** F1-Score, ROC-AUC, SHAP Analysis, Business ROI Calculation.
+1.  **Veri Ön İşleme ve Temizleme:** Eksik değerlerin yönetimi, aykırı değer tespiti.
+2.  **EDA (Keşifsel Veri Analizi):** Sipariş kalıplarını, haftanın günü trendlerini anlama.
+3.  **Gelişmiş Özellik Mühendisliği:**
+    *   **RFM Analizi:** Yenilik (Recency), Sıklık (Frequency), Parasal (Monetary) özellikler.
+    *   **Davranışsal Özellikler:** Satın alma hızı, siparişler arası ortalama gün sayısı.
+    *   **Zaman Serisi Trendleri:** Yenilik ivmesi (müşteri yavaşlıyor mu?).
+    *   **Ürün Çeşitliliği:** Keşif oranı, ziyaret edilen benzersiz reyon sayısı.
+4.  **Sızıntı Önleme:** Kesin zaman tabanlı eğitim/test ayırımı (Kesme stratejisi).
+5.  **Modelleme:** LightGBM, XGBoost, CatBoost (Temel ve Ayarlanmış).
+6.  **Optimizasyon:** **Optuna** ile hiperparametre ayarı.
+7.  **Değerlendirme:** F1-Skoru, ROC-AUC, SHAP Analizi, İşletme Yatırım Getirisi Hesaplaması.
 
 ---
 
-## 🏆 Results & Business Impact
+### 🏆 Sonuçlar ve İşletme Etkisi
 
-After rigorous testing and optimization, the final **LightGBM** model was tuned to prioritize **Recall** (catching churners) over Precision.
+Titiz testler ve optimizasyon sonucunda, nihai **LightGBM** modeli, Hassasiyet (Precision) yerine **Duyarlılığı (Recall)** (kaybedilen müşterileri yakalama) önceliklendirecek şekilde ayarlandı.
 
-### 📈 Model Performance
-| Metric | Score | Interpretation |
+### 📈 Model Performansı
+| Metrik | Puan | Yorum |
 | :--- | :---: | :--- |
-| **ROC-AUC** | **0.7644** | Good capability to distinguish between churners and active users. |
-| **Recall** | **81%** | **Critical Metric:** We successfully capture **4 out of 5** potential churners. |
-| **Precision** | **46%** | We accept a broader targeting strategy to minimize missed churners (False Negatives). |
-| **F1-Score** | **0.59** | Reflects the strategic trade-off between Precision and Recall. |
+| **ROC-AUC** | **0.7644** | Kaybedilen ve aktif kullanıcıları ayırt etme yeteneği iyi. |
+| **Duyarlılık (Recall)** | **81%** | **Kritik Metrik:** Potansiyel 5 müşteriden **4'ünü** başarıyla yakalıyoruz. |
+| **Hassasiyet (Precision)** | **46%** | Kaçırılan müşteri kayıplarını (Yanlış Negatifler) en aza indirmek için daha geniş bir hedefleme stratejisi kabul ediyoruz. |
+| **F1-Skoru** | **0.59** | Hassasiyet ve Duyarlılık arasındaki stratejik dengeyi yansıtır. |
 
-> **Strategy Note:** In churn prediction, a **False Negative** (missing a customer who leaves) is much costlier than a **False Positive** (giving a discount to a happy customer). Therefore, we optimized the decision threshold to maximize **Recall (81%)**.
+> **Strateji Notu:** Müşteri kaybı tahmininde, bir **Yanlış Negatif** (ayrılan bir müşteriyi kaçırmak), bir **Yanlış Pozitif**'ten (mutlu bir müşteriye indirim vermek) çok daha maliyetlidir. Bu nedenle, karar eşiğini **Duyarlılığı (%81)** en üst düzeye çıkarmak için optimize ettik.
 
-### 💰 ROI Analysis
-By optimizing the decision threshold (instead of default 0.5), we maximized the expected profit.
+### 💰 ROI Analizi
+Karar eşiğini (varsayılan 0.5 yerine) optimize ederek, beklenen karı en üst düzeye çıkardık.
 
-* **Revenue Saved (Projected):** ~$1,760,000 / year
-* **Campaign Cost:** ~$150,000 / year
-* **Net Profit:** **~$1.61M / year**
-* **ROI:** **~1070%**
+*   **Tasarruf Edilen Gelir (Tahmini):** ~1,760,000 Dolar / yıl
+*   **Kampanya Maliyeti:** ~150,000 Dolar / yıl
+*   **Net Kar:** **~1.61 Milyon Dolar / yıl**
+*   **ROI:** **~1070%**
 
-### 📊 Model Evolution (Baseline vs Final)
-We started with a simple Logistic Regression model and improved performance through advanced algorithms and hyperparameter tuning.
+### 📊 Model Gelişimi (Temel vs Nihai)
+Basit bir Lojistik Regresyon modeliyle başladık ve gelişmiş algoritmalar ve hiperparametre ayarı ile performansı artırdık.
 
-| Model Strategy | Algorithm | F1-Score | ROC-AUC | Improvement |
+| Model Stratejisi | Algoritma | F1-Skoru | ROC-AUC | İyileştirme |
 | :--- | :--- | :---: | :---: | :--- |
-| **Baseline** | Logistic Regression | 0.57 | 0.75 |
-| **V2 (Feature Eng.)** | XGBoost | 0.52 | 0.72 |
-| **Final (Tuned)** | **LightGBM** | **0.59** | **0.76** |
+| **Temel** | Lojistik Regresyon | 0.57 | 0.75 |
+| **V2 (Özellik Müh.)** | XGBoost | 0.52 | 0.72 |
+| **Nihai (Ayarlanmış)** | **LightGBM** | **0.59** | **0.76** |
 
-> **Key Takeaway:** Although the baseline model performed reasonably well, the Final LightGBM model offered better stability and a higher F1-Score (0.59 vs 0.57), optimizing the balance between precision and recall.
+> **Ana Çıkarım:** Temel model makul derecede iyi performans gösterse de, Nihai LightGBM modeli daha iyi stabilite ve daha yüksek bir F1-Skoru (0.59'a karşı 0.57) sunarak hassasiyet ve duyarlılık arasındaki dengeyi optimize etti.
+
 
 ---
 
-## 📂 Project Structure
+## 📂 Proje Yapısı
 
 ```bash
 FreshCart-Churn-Prediction/
 ├── .python-version
 ├── .gitignore
 ├── LICENCE
-├── README.md               # Project documentation
-├── requirements.txt        # Python dependencies
-├── app.py                  # Streamlit Dashboard application
+├── README.md               # Proje dokümantasyonu
+├── requirements.txt        # Python bağımlılıkları
+├── app.py                  # Streamlit Pano uygulaması
 ├── data/
 │   ├── external/
-│   ├── processed/          # Feature stores & monitoring logs
+│   ├── processed/          # Özellik depoları ve izleme günlükleri
 │   │   ├── feature_metadata.json
 │   │   ├── final_features_advanced.parquet
 │   │   ├── model_features.json
 │   │   └── monitoring.db
-│   └── raw/                # Original immutable data
-├── docs/                   # Reports and presentations
+│   └── raw/                # Orijinal değiştirilemez veri
+├── docs/                   # Raporlar ve sunumlar
 │   ├── baseline_results.json
 │   ├── evaluation_report.md
 │   └── FreshCart_Executive_Presentation.pptx
-├── logs/                   # System logs
-├── models/                 # Trained models & artifacts
-│   ├── baseline_*.pkl      # Baseline models (Logistic Reg, Random Forest)
-│   ├── best_params.json    # Optimized hyperparameters
+├── logs/                   # Sistem günlükleri
+├── models/                 # Eğitilmiş modeller ve yapıtlar
+│   ├── baseline_*.pkl      # Temel modeller (Lojistik Reg, Random Forest)
+│   ├── best_params.json    # Optimize edilmiş hiperparametreler
 │   ├── feature_importance.csv
 │   ├── feature_names.json
 │   ├── final_metrics.json
 │   └── final_model_optimized.pkl
-├── notebooks/              # Jupyter notebooks for experimentation
+├── notebooks/              # Deneyler için Jupyter not defterleri
 │   ├── 01_EDA.ipynb
 │   ├── 02_baseline.ipynb
 │   ├── 03_feature_engineering.ipynb
 │   ├── 04_model_optimization.ipynb
 │   ├── 05_model_evaluation.ipynb
 │   └── 06_final_pipeline.ipynb
-├── plots/                  # Generated charts for reporting
-└── src/                    # Source code modules
-    ├── config.py           # Configuration settings
-    ├── data/               # Data loading scripts
+├── plots/                  # Raporlama için oluşturulmuş grafikler
+└── src/                    # Kaynak kodu modülleri
+    ├── config.py           # Yapılandırma ayarları
+    ├── data/               # Veri yükleme betikleri
     │   ├── churn_labels.py
     │   └── data_loader.py
-    └── features/           # Feature engineering scripts
+    └── features/           # Özellik mühendisliği betikleri
         ├── behavioral_features.py
         └── rfm_features.py
 
@@ -175,65 +176,65 @@ FreshCart-Churn-Prediction/
 
 ---
 
-## 🚀 Setup
+## 🚀 Kurulum
 
-### Requirements
+### Gereksinimler
 
 - Python 3.9+
 - pip or conda
 
-### Step 1: Clone the repository
+### Adım 1: Depoyu klonlayın
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/freshcart-churn-prediction.git
 cd freshcart-churn-prediction
 ```
 
-### Step 2: Create a virtual environment
+### Adım 2: Sanal bir ortam oluşturun
 
 ```bash
-# With Conda
+# Conda ile
 conda create -n freshcart python=3.9
 conda activate freshcart
 
-# Or with venv
+# Veya venv ile
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 ```
 
-### Step 3: Install dependencies
+### Adım 3: Bağımlılıkları yükleyin
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Step 4: Download the data
+### Adım 4: Veriyi indirin
 
 ```bash
-# Using the Kaggle API
+# Kaggle API kullanarak
 kaggle competitions download -c instacart-market-basket-analysis
 
-# Or manually place it in the data/raw/ directory
+## Veya manuel olarak data/raw/ dizinine yerleştirin
 ```
 
-### Step 5: Run the Full Pipeline
-To process data, generate features, and train the model, run the final pipeline notebook:
+### Adım 5: Tam Pipeline'ı Çalıştırın
+Veriyi işlemek, özellikleri oluşturmak ve modeli eğitmek için nihai pipeline not defterini çalıştırın:
 
 ```bash
-# Run the final pipeline notebook to generate artifacts
+# Yapıtları oluşturmak için nihai pipeline not defterini çalıştırın
 jupyter notebook notebooks/06_final_pipeline.ipynb
 ```
 
 ---
 
-## 💻 Usage
+## 💻 Kullanım
 
-### 1. Run the Pipeline
-To execute the full workflow:
+### 1. Pipeline'ı Çalıştırın
+Tüm iş akışını çalıştırmak için:
 ```bash
 jupyter notebook notebooks/06_final_pipeline.ipynb
 
-### 2. Running the Web Application
+### 2. Web Uygulamasını Çalıştırma
 
 ```bash
 # Streamlit
@@ -242,23 +243,23 @@ streamlit run app.py
 
 ---
 
-## 📸 Screenshots & Visuals
-### 1. Model Performance (ROC & Precision-Recall Curves)
-The model shows strong predictive power with a high Area Under Curve (AUC).
+## 📸 Ekran Görüntüleri ve Görseller
+### 1. Model Performansı (ROC ve Precision-Recall Eğrileri)
+Model, yüksek bir Eğri Altındaki Alan (AUC) ile güçlü bir tahmin gücü gösterir.
 ![ROC Curve](plots/13_roc_pr_curves.png)
 
-### 2. Feature Importance & SHAP Analysis
-**Why do customers churn?** The model identifies *Purchase Velocity* and *Days Since Last Order* as the top drivers.
-* *Red dots on the right:* High value increases churn risk.
-* *Blue dots on the right:* Low value increases churn risk.
+### 2. Özellik Önemi ve SHAP Analizi
+**Müşteriler neden kaybedilir?** Model, *Satın Alma Hızı* ve *Son Siparişten Bu Yana Geçen Gün Sayısı*'nı en önemli etkenler olarak belirler.
+*   *Sağdaki kırmızı noktalar:* Yüksek değer müşteri kaybı riskini artırır.
+*   *Sağdaki mavi noktalar:* Düşük değer müşteri kaybı riskini artırır.
 ![SHAP Summary](plots/16_shap_summary.png)
 
-### 3. Business Value & Threshold Optimization
-We selected the optimal threshold to maximize Net Profit, not just Accuracy.
+### 3. İş Değeri ve Eşik Optimizasyonu
+Sadece Doğruluğu değil, Net Karı en üst düzeye çıkarmak için en uygun eşiği seçtik.
 ![Threshold Optimization](plots/20_threshold_optimization.png)
 
-### 4. Data Insights (EDA)
-Understanding customer ordering habits by day and hour.
+### 4. Veri İçgörüleri (EDA)
+Müşteri sipariş alışkanlıklarını gün ve saate göre anlama.
 ![Orders Univariate](plots/02_orders_univariate.png)
 
 ### Video Demo
@@ -267,81 +268,81 @@ Understanding customer ordering habits by day and hour.
 
 ---
 
-## 🔬 Technical Details
+## 🔬 Teknik Detaylar
 
-### Validation Strategy
+### Doğrulama Stratejisi
 
-We used a **Time-based Split**:
-- Train: First 80% of orders
-- Validation: Next 10%
-- Test: Last 10%
+**Zaman Tabanlı Bölme** kullandık:
+- Train: Siparişlerin ilk %80'i
+- Validation: Sonraki %10
+- Test: Son %10
 
-**Why?** To prevent data leakage in time-series data.
+**Neden?** Zaman serisi verilerinde veri sızıntısını önlemek için.
 
-### Feature Engineering
+### Özellik Mühendisliği
 
-We engineered **100+ features**:
+**100+ özellik** tasarladık:
 
-1.  **RFM Features (Recency, Frequency, Monetary)**
-    - Days since last order
-    - Total number of orders
-    - Average basket value
+1.  **RFM Özellikleri (Yenilik, Sıklık, Parasal)**
+    - Son siparişten bu yana geçen gün
+    - Toplam sipariş sayısı
+    - Ortalama sepet değeri
 
-2.  **Behavioral Features**
-    - Weekday vs. weekend order ratio
-    - Average time of day for orders
-    - Favorite product categories
+2.  **Davranışsal Özellikler**
+    - Hafta içi ve hafta sonu sipariş oranı
+    - Siparişler için ortalama günün saati
+    - Favori ürün kategorileri
 
-3.  **Product-based Features**
-    - Product diversity
-    - Reorder rate
-    - Category preferences
+3.  **Ürün Bazlı Özellikler**
+    - Ürün çeşitliliği
+    - Tekrar sipariş oranı
+    - Kategori tercihleri
 
-4.  **Time-series Features**
-    - Order frequency trend
-    - Seasonality patterns
-    - Moving averages
+4.  **Zaman Serisi Özellikleri**
+    - Sipariş sıklığı trendi
+    - Mevsimsellik kalıpları
+    - Hareketli ortalamalar
 
-**What Worked Best?**
-- **Time-Series Trends:** Calculating the slope of order frequency (is the customer ordering less frequently over time?) was the most predictive feature.
-- **Behavioral Ratios:** `orders_per_week` proved more valuable than raw counts.
+**En İyi Ne İşe Yaradı?**
+- **Zaman Serisi Trendleri:** Sipariş sıklığının eğimini hesaplamak (müşteri zamanla daha az mı sipariş veriyor?) en öngörücü özellikti.
+- **Davranışsal Oranlar:** `orders_per_week` ham sayılardan daha değerli olduğunu kanıtladı.
 
-### Model Selection
+### Model Seçimi
 
-**Models Tried:**
-- Logistic Regression (Baseline)
-- Random Forest
+**Denenen Modeller:**
+- Lojistik Regresyon (Baseline)
+- Rastgele Orman
 - XGBoost
 - **LightGBM** ✅ (Final)
 - CatBoost
 
-**Final Model:** LightGBM
-- **Why?** Best F1-score, fast inference, and low memory footprint.
+**Nihai Model:** LightGBM
+- **Neden?** En iyi F1-skoru, hızlı çıkarım ve düşük bellek kullanımı.
 
-### Hyperparameter Optimization
+### Hiperparametre Optimizasyonu
 
-Used **Optuna** with 100 trials:
-- Learning rate: 0.03
-- Max depth: 8
-- Num leaves: 31
-- Min child samples: 20
+100 deneme ile **Optuna** kullanıldı:
+- Öğrenme oranı: 0.03
+- Maksimum derinlik: 8
+- Leaves sayısı: 31
+- Minimum çocuk örnekleri: 20
 
 ---
 
-## 📈 Key Findings
+## 📈 Ana Bulgular
 
-### EDA Insights
+### EDA İçgörüleri
 
-1.  **Churn Rate:** 23.4% (benchmark: 18-25%)
-2.  **Critical Window:** Customers with 15+ days since their last order are at high risk.
-3.  **Top Churn Drivers:**
-    - Decrease in order frequency (45% impact)
-    - Reduction in basket value (28% impact)
-    - Customer support complaints (18% impact)
+1.  **Müşteri Kaybı Oranı:** %23.4 (referans: %18-25)
+2.  **Kritik Pencere:** Son siparişlerinden bu yana 15+ gün geçen müşteriler yüksek risk altındadır.
+3.  **En Önemli Müşteri Kaybı Etkenleri:**
+    - Sipariş sıklığında azalma (%45 etki)
+    - Sepet değerinde azalma (%28 etki)
+    - Müşteri destek şikayetleri (%18 etki)
 
-### Feature Importance
+### Özellik Önemi
 
-Top 5 Features:
+En İyi 5 Özellik:
 1.  `days_since_last_order` (18.5%)
 2.  `order_frequency_last_30d` (14.2%)
 3.  `avg_basket_value` (11.8%)
@@ -350,9 +351,9 @@ Top 5 Features:
 
 ---
 
-## 🚀 Deployment & Monitoring
+## 🚀 Dağıtım ve İzleme
 
-### Architecture
+### Mimari
 
 ```
 User Request → FastAPI → Model Inference → Response
@@ -362,48 +363,48 @@ User Request → FastAPI → Model Inference → Response
 
 ### Monitoring Metrics
 
-- **Model Performance:** Precision, Recall, F1
-- **Business Metrics:** Conversion rate, ROI
-- **System Metrics:** Response time, error rate
-- **Data Drift:** Feature distribution monitoring
+- **Model Performansı:** Hassasiyet, Duyarlılık, F1
+- **İşletme Metrikleri:** Dönüşüm oranı, ROI
+- **Sistem Metrikleri:** Yanıt süresi, hata oranı
+- **Veri Kayması:** Feature distribution monitoring
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Teknoloji Yığını
 
-**Core:**
+**Çekirdek:**
 - Python 3.9+
 - Pandas, NumPy
 - Scikit-learn
 
-**Machine Learning:**
+**Makine Öğrenmesi:**
 - LightGBM (Final Model)
 - XGBoost
 - CatBoost
 - Optuna (Hyperparameter tuning)
 
-**Visualization:**
+**Görselleştirme:**
 - Matplotlib, Seaborn
-- SHAP (Model explainability)
+- SHAP (Model açıklanabilirliği)
 
-**Deployment:**
-- FastAPI (Prediction API)
-- Streamlit (Dashboard)
+**Dağıtım:**
+- FastAPI (Tahmin API'si)
+- Streamlit (Pano)
 - Docker
 
 ---
 
-## 📚 Documentation
+## 📚 Dokümantasyon
 
-For detailed documentation, see the `docs/` folder:
+Detaylı dokümantasyon için `docs/` klasörüne bakın:
 
-- [Model Evaluation](docs/evaluation_report.md)
+- [Model Değerlendirme](docs/evaluation_report.md)
 
 ---
 
-## 🤝 Contact
+## 🤝 İletişim
 
-**Project Owner:** Murat IYIGUN
+**Proje Sahibi:** Murat IYIGUN
 
 - 📧 Email: miyigun@hotmail.com
 - 💼 LinkedIn: [Murat İyigün](https://www.linkedin.com/in/murat-iyigün-62b01b10a)
@@ -411,18 +412,18 @@ For detailed documentation, see the `docs/` folder:
 
 ---
 
-## 📄 License
+## 📄 Lisans
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgements
-
-- **Zero2End Bootcamp** team for the training and mentorship
-- **Instacart** for sharing their real-world data as open source
-- The **Kaggle** community for their useful kernels and discussions
+Bu proje MIT Lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
 ---
 
-**⭐ Don't forget to star the project if you liked it!**
+## 🙏 Teşekkürler
+
+- **Zero2End Bootcamp** ekibine eğitim ve mentorluk için
+- Gerçek dünya verilerini açık kaynak olarak paylaştığı için **Instacart**'a
+- Faydalı kernelleri ve tartışmaları için **Kaggle** topluluğuna
+
+---
+
+**⭐ Beğendiyseniz projeye yıldız vermeyi unutmayın!**

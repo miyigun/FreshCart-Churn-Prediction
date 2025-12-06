@@ -1,29 +1,25 @@
-# --- Core ---
+# --- Çekirdek Kütüphaneler ---
 streamlit
 pandas
 numpy
 joblib
 
-# --- Machine Learning & Explainer ---
+# --- Makine Öğrenmesi ve Açıklayıcılar ---
 scikit-learn
 lightgbm
 shap
-# xgboost ve catboost eğer modelin içinde kullanılmıyorsa silebilirsin, 
-# ancak model.pkl bunları gerektiriyorsa kalsın.
+
 xgboost 
 catboost
 optuna
 
-# --- Visualization ---
+# --- Görselleştirme ---
 matplotlib
 seaborn
 plotly
 
-# --- Utilities ---
+# --- Yardımcı Araçlar ---
 python-dotenv
 pyyaml
 
-# --- Database (App.py sqlite3 kullanıyor ama src/db.py için gerekebilir) ---
 sqlalchemy
-# Postgres kullanmıyorsan bunu silebilirsin, sqlite python'da gömülüdür.
-# psycopg2-binary

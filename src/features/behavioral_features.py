@@ -1,7 +1,7 @@
 """
-Behavioral Feature Engineering Module
+Davranışsal Özellik Mühendisliği Modülü
 ======================================
-Features that capture customer behavior patterns.
+Müşteri davranış kalıplarını yakalayan özellikler.
 """
 
 import pandas as pd
@@ -15,13 +15,13 @@ logger = logging.getLogger(__name__)
 
 class BehavioralFeatureEngineer:
     """
-    Creates customer behavioral features.
+    Müşteri davranışsal özelliklerini oluşturur.
     
-    Feature Groups:
-    - Time-based: Day and hour preferences
-    - Reorder behavior: Reordering habits
-    - Diversity: Product diversity
-    - Consistency: Behavioral consistency
+    Özellik Grupları:
+    - Zaman bazlı: Gün ve saat tercihleri
+    - Tekrar sipariş davranışı: Tekrar sipariş alışkanlıkları
+    - Çeşitlilik: Ürün çeşitliliği
+    - Tutarlılık: Davranışsal tutarlılık
     """
     
     def __init__(self):
@@ -32,59 +32,59 @@ class BehavioralFeatureEngineer:
                                        order_products_df: pd.DataFrame,
                                        products_df: pd.DataFrame) -> pd.DataFrame:
         """
-        Create all behavioral features.
+        Tüm davranışsal özellikleri oluşturur.
         
         Args:
-            orders_df: The orders dataframe.
-            order_products_df: The order products dataframe.
-            products_df: The products dataframe.
+            orders_df: Siparişler veri çerçevesi.
+            order_products_df: Sipariş ürünleri veri çerçevesi.
+            products_df: Ürünler veri çerçevesi.
             
         Returns:
-            A dataframe with user-level behavioral features.
+            Kullanıcı düzeyinde davranışsal özelliklere sahip bir veri çerçevesi.
         """
-        logger.info("🧠 Creating behavioral features...")
+        logger.info("Davranışsal özellikler oluşturuluyor...")
         
-        # Time-based features
+        # Zaman bazlı özellikler
         time_features = self.create_time_features(orders_df)
         
-        # Reorder features
+        # Tekrar sipariş özellikleri
         reorder_features = self.create_reorder_features(orders_df, order_products_df)
         
-        # Product diversity features
+        # Ürün çeşitliliği özellikleri
         diversity_features = self.create_diversity_features(
             orders_df, order_products_df, products_df
         )
         
-        # Merge all
+        # Hepsini birleştir
         behavioral_features = time_features\
             .merge(reorder_features, on='user_id', how='outer')\
             .merge(diversity_features, on='user_id', how='outer')
         
-        # Fill NaN
+        # NaN değerlerini doldur
         behavioral_features = behavioral_features.fillna(0)
         
         self.feature_names = [col for col in behavioral_features.columns if col != 'user_id']
         
-        logger.info(f"✅ Created {len(self.feature_names)} behavioral features")
+        logger.info(f"{len(self.feature_names)} adet davranışsal özellik oluşturuldu")
         
         return behavioral_features
     
     def create_time_features(self, orders_df: pd.DataFrame) -> pd.DataFrame:
         """
-        Time-based behavioral features.
+        Zaman bazlı davranışsal özellikler.
         
-        Features:
-        - avg_order_hour: Average order hour.
-        - avg_order_dow: Average order day of the week.
-        - weekend_order_ratio: Ratio of orders placed on weekends.
-        - night_order_ratio: Ratio of orders placed at night (8 PM - 6 AM).
-        - morning_order_ratio: Ratio of orders placed in the morning (6 AM - 12 PM).
-        - preferred_dow: Most preferred day of the week.
-        - preferred_hour: Most preferred hour of the day.
+        Özellikler:
+        - avg_order_hour: Ortalama sipariş saati.
+        - avg_order_dow: Ortalama sipariş haftanın günü.
+        - weekend_order_ratio: Hafta sonu verilen siparişlerin oranı.
+        - night_order_ratio: Gece verilen siparişlerin oranı (20:00 - 06:00).
+        - morning_order_ratio: Sabah verilen siparişlerin oranı (06:00 - 12:00).
+        - preferred_dow: En çok tercih edilen haftanın günü.
+        - preferred_hour: En çok tercih edilen günün saati.
         """
-        logger.info("   Creating time-based features...")
+        logger.info("Zaman bazlı özellikler oluşturuluyor...")
         
-        # Basic stats
+        # Temel istatistikler
         time_stats = orders_df.groupby('user_id').agg({
             'order_hour_of_day': ['mean', 'std', lambda x: x.mode()[0] if len(x.mode()) > 0 else 0],
             'order_dow': ['mean', 'std', lambda x: x.mode()[0] if len(x.mode()) > 0 else 0]
@@ -100,31 +100,31 @@ class BehavioralFeatureEngineer:
             'preferred_dow'
         ]
         
-        # Weekend orders (dow 5, 6 = Saturday, Sunday)
+        # Hafta sonu siparişleri (dow 5, 6 = Cumartesi, Pazar)
         weekend_orders = orders_df.groupby('user_id').apply(
             lambda x: (x['order_dow'] >= 5).sum() / len(x)
         ).reset_index()
         weekend_orders.columns = ['user_id', 'weekend_order_ratio']
         
-        # Night orders (20-6 hours)
+        # Gece siparişleri (20-06 saatleri)
         night_orders = orders_df.groupby('user_id').apply(
             lambda x: ((x['order_hour_of_day'] >= 20) | (x['order_hour_of_day'] < 6)).sum() / len(x)
         ).reset_index()
         night_orders.columns = ['user_id', 'night_order_ratio']
         
-        # Morning orders (6-12 hours)
+        # Sabah siparişleri (06-12 saatleri)
         morning_orders = orders_df.groupby('user_id').apply(
             lambda x: ((x['order_hour_of_day'] >= 6) & (x['order_hour_of_day'] < 12)).sum() / len(x)
         ).reset_index()
         morning_orders.columns = ['user_id', 'morning_order_ratio']
         
-        # Afternoon orders (12-18 hours)
+        # Öğleden sonra siparişleri (12-18 saatleri)
         afternoon_orders = orders_df.groupby('user_id').apply(
             lambda x: ((x['order_hour_of_day'] >= 12) & (x['order_hour_of_day'] < 18)).sum() / len(x)
         ).reset_index()
         afternoon_orders.columns = ['user_id', 'afternoon_order_ratio']
         
-        # Merge all time features
+        # Tüm zaman özelliklerini birleştir
         time_features = time_stats\
             .merge(weekend_orders, on='user_id')\
             .merge(night_orders, on='user_id')\
@@ -137,23 +137,23 @@ class BehavioralFeatureEngineer:
                                orders_df: pd.DataFrame,
                                order_products_df: pd.DataFrame) -> pd.DataFrame:
         """
-        Reorder behavior features.
+        Tekrar sipariş davranışı özellikleri.
         
-        Features:
-        - overall_reorder_rate: Overall reorder rate.
-        - avg_reorder_rate_per_order: Average reorder rate per order.
-        - reorder_consistency: Consistency of reordering.
-        - favorite_products_count: Number of favorite products (ordered 5+ times).
+        Özellikler:
+        - overall_reorder_rate: Genel tekrar sipariş oranı.
+        - avg_reorder_rate_per_order: Sipariş başına ortalama tekrar sipariş oranı.
+        - reorder_consistency: Tekrar sipariş verme tutarlılığı.
+        - favorite_products_count: Favori ürünlerin sayısı (5+ kez sipariş edilenler).
         """
-        logger.info("   Creating reorder behavior features...")
+        logger.info("Tekrar sipariş davranışı özellikleri oluşturuluyor...")
         
-        # Merge to get user_id
+        # user_id'yi almak için birleştir
         order_products_with_user = order_products_df.merge(
             orders_df[['order_id', 'user_id']], 
             on='order_id'
         )
         
-        # Overall reorder rate per user
+        # Kullanıcı başına genel tekrar sipariş oranı
         reorder_stats = order_products_with_user.groupby('user_id').agg({
             'reordered': ['mean', 'sum', 'std']
         }).reset_index()
@@ -165,12 +165,12 @@ class BehavioralFeatureEngineer:
             'reorder_rate_std'
         ]
         
-        # Reorder rate per order (some users consistently reorder, others don't)
+        # Sipariş başına tekrar sipariş oranı (bazı kullanıcılar tutarlı bir şekilde tekrar sipariş verirken, diğerleri vermez)
         reorder_per_order = order_products_with_user.groupby(['user_id', 'order_id'])['reordered'].mean().reset_index()
         reorder_consistency = reorder_per_order.groupby('user_id')['reordered'].agg(['mean', 'std']).reset_index()
         reorder_consistency.columns = ['user_id', 'avg_reorder_rate_per_order', 'reorder_consistency_std']
         
-        # Favorite products (ordered 5+ times)
+        # Favori ürünler (5+ kez sipariş edilenler)
         product_order_counts = order_products_with_user.groupby(['user_id', 'product_id']).size().reset_index()
         product_order_counts.columns = ['user_id', 'product_id', 'times_ordered']
         
@@ -178,7 +178,7 @@ class BehavioralFeatureEngineer:
             .groupby('user_id').size().reset_index()
         favorite_products.columns = ['user_id', 'favorite_products_count']
         
-        # Merge
+        # Birleştir
         reorder_features = reorder_stats\
             .merge(reorder_consistency, on='user_id')\
             .merge(favorite_products, on='user_id', how='left')
@@ -194,25 +194,25 @@ class BehavioralFeatureEngineer:
                                 order_products_df: pd.DataFrame,
                                 products_df: pd.DataFrame) -> pd.DataFrame:
         """
-        Product diversity features.
+        Ürün çeşitliliği özellikleri.
         
-        Features:
-        - unique_products: Number of unique products.
-        - unique_aisles: Number of unique aisles.
-        - unique_departments: Number of unique departments.
-        - product_diversity_score: Product diversity score.
-        - avg_products_per_order: Average products per order.
-        - exploration_rate: Rate of trying new products.
+        Özellikler:
+        - unique_products: Benzersiz ürün sayısı.
+        - unique_aisles: Benzersiz reyon sayısı.
+        - unique_departments: Benzersiz departman sayısı.
+        - product_diversity_score: Ürün çeşitliliği puanı.
+        - avg_products_per_order: Sipariş başına ortalama ürün sayısı.
+        - exploration_rate: Yeni ürünleri deneme oranı.
         """
-        # BU SATIRDAN İTİBAREN TÜM KODLARIN GİRİNTİLİ OLDUĞUNDAN EMİN OLUN
-        logger.info("   Creating diversity features...")
+
+        logger.info("Çeşitlilik özellikleri oluşturuluyor...")
         
-        # Merge to get aisle and department info
+        # Reyon ve departman bilgilerini almak için birleştir
         order_products_full = order_products_df\
             .merge(orders_df[['order_id', 'user_id', 'order_number']], on='order_id')\
             .merge(products_df[['product_id', 'aisle_id', 'department_id']], on='product_id')
         
-        # Unique counts
+        # Benzersiz sayımlar
         diversity_stats = order_products_full.groupby('user_id').agg({
             'product_id': 'nunique',
             'aisle_id': 'nunique',
@@ -228,19 +228,19 @@ class BehavioralFeatureEngineer:
             'total_orders'
         ]
         
-        # Products per order
+        # Sipariş başına ürün sayısı
         diversity_stats['avg_products_per_order'] = (
             order_products_full.groupby('user_id').size().values / 
             diversity_stats['total_orders']
         )
         
-        # Product diversity score (normalized)
+        # Ürün çeşitliliği puanı (normalize edilmiş)
         diversity_stats['product_diversity_score'] = (
             diversity_stats['unique_products'] / 
             (diversity_stats['total_orders'] * diversity_stats['avg_products_per_order'] + 1)
         )
         
-        # --- OPTIMIZED EXPLORATION RATE CALCULATION ---
+        # --- OPTİMİZE EDİLMİŞ KEŞİF ORANI HESAPLAMASI ---
         def calculate_exploration(df_group):
             if df_group.empty:
                 return 0
@@ -254,19 +254,19 @@ class BehavioralFeatureEngineer:
                 return len(late_products - early_products) / len(late_products)
             return 0
 
-        # Apply the function to each user group
+        # Fonksiyonu her kullanıcı grubuna uygula
         exploration_df = order_products_full.groupby('user_id').apply(calculate_exploration).reset_index(name='exploration_rate')
         
         diversity_stats = diversity_stats.merge(exploration_df, on='user_id', how='left')
-        # --- END OF OPTIMIZATION ---
+        # --- OPTİMİZASYON SONU ---
 
-        # Drop temporary column
+        # Geçici sütunu kaldır
         diversity_stats = diversity_stats.drop('total_orders', axis=1)
         
         return diversity_stats
 
     def get_feature_names(self) -> List[str]:
-        """Return a list of the feature names."""
+        """Özellik adlarının bir listesini döndürür."""
         return self.feature_names
 
 
@@ -274,15 +274,15 @@ def create_behavioral_features_pipeline(orders_df: pd.DataFrame,
                                         order_products_df: pd.DataFrame,
                                         products_df: pd.DataFrame) -> pd.DataFrame:
     """
-    A quick pipeline to create all behavioral features.
+    Tüm davranışsal özellikleri oluşturmak için hızlı bir pipeline.
     
     Args:
-        orders_df: The orders dataframe.
-        order_products_df: The order products dataframe.
-        products_df: The products dataframe.
+        orders_df: Siparişler veri çerçevesi.
+        order_products_df: Sipariş ürünleri veri çerçevesi.
+        products_df: Ürünler veri çerçevesi.
         
     Returns:
-        A dataframe with user-level behavioral features.
+        Kullanıcı düzeyinde davranışsal özelliklere sahip bir veri çerçevesi.
     """
     engineer = BehavioralFeatureEngineer()
     behavioral_features = engineer.create_all_behavioral_features(
@@ -292,7 +292,7 @@ def create_behavioral_features_pipeline(orders_df: pd.DataFrame,
     return behavioral_features
 
 
-# Example usage
+# Örnek kullanım
 if __name__ == "__main__":
     from pathlib import Path
     import sys
@@ -300,7 +300,7 @@ if __name__ == "__main__":
     from src.data.data_loader import InstacartDataLoader
     from src.config import RAW_DATA_DIR
     
-    # Load data
+    # Veriyi yükle
     loader = InstacartDataLoader(RAW_DATA_DIR)
     data = loader.load_all_data()
     
@@ -311,15 +311,15 @@ if __name__ == "__main__":
     ])
     products_df = data['products']
     
-    # Create behavioral features
+    # Davranışsal özellikleri oluştur
     behavioral_features = create_behavioral_features_pipeline(
         orders_df, order_products, products_df
     )
     
-    print("\n🧠 Behavioral Features Sample:")
+    print("\n Davranışsal Özellikler Örneği:")
     print(behavioral_features.head(10))
     
-    print("\n📈 Behavioral Features Statistics:")
+    print("\n Davranışsal Özellikler İstatistikleri:")
     print(behavioral_features.describe())
     
-    print("\n✅ Behavioral features created successfully!")
+    print("\n Davranışsal özellikler başarıyla oluşturuldu!")

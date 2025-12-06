@@ -1,7 +1,7 @@
 """
-Data Loading Module
+Veri Yükleme Modülü
 ===================
-Functions to load and merge the Instacart dataset.
+Instacart veri setini yüklemek ve birleştirmek için fonksiyonlar.
 """
 
 import pandas as pd
@@ -11,30 +11,30 @@ from typing import Dict, Tuple, Optional
 import logging
 from tqdm import tqdm
 
-# Setup logging
+# Günlük kaydı (logging) kurulumu
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 class InstacartDataLoader:
-    """Class to load Instacart data."""
+    """Instacart verilerini yüklemek için sınıf."""
     
     def __init__(self, data_dir: Path):
         """
         Args:
-            data_dir: Directory where the raw data files are located.
+            data_dir: Ham veri dosyalarının bulunduğu dizin.
         """
         self.data_dir = Path(data_dir)
         self.data = {}
         
     def load_all_data(self) -> Dict[str, pd.DataFrame]:
         """
-        Load all Instacart CSV files.
+        Tüm Instacart CSV dosyalarını yükler.
         
         Returns:
-            A dictionary containing all dataframes.
+            Tüm veri çerçevelerini içeren bir sözlük.
         """
-        logger.info("📦 Loading Instacart datasets...")
+        logger.info("Instacart veri setleri yükleniyor...")
         
         files = {
             'orders': 'orders.csv',
@@ -47,128 +47,128 @@ class InstacartDataLoader:
         
         for key, filename in files.items():
             filepath = self.data_dir / filename
-            logger.info(f"   Loading {filename}...")
+            logger.info(f"Yükleniyor: {filename}...")
             
             try:
                 self.data[key] = pd.read_csv(filepath)
-                logger.info(f"   ✅ Loaded {key}: {self.data[key].shape}")
+                logger.info(f"Yüklendi {key}: {self.data[key].shape}")
             except FileNotFoundError:
-                logger.error(f"   ❌ File not found: {filepath}")
+                logger.error(f"Dosya bulunamadı: {filepath}")
                 raise
             except Exception as e:
-                logger.error(f"   ❌ Error loading {filename}: {str(e)}")
+                logger.error(f"{filename} yüklenirken hata oluştu: {str(e)}")
                 raise
         
-        logger.info(f"✅ All datasets loaded successfully!\n")
+        logger.info(f"Tüm veri setleri başarıyla yüklendi!\n")
         self._print_data_summary()
         
         return self.data
     
     def _print_data_summary(self):
-        """Prints a summary of the loaded data."""
+        """Yüklenen verilerin bir özetini yazdırır."""
         logger.info("=" * 80)
-        logger.info("DATA SUMMARY")
+        logger.info("VERİ ÖZETİ")
         logger.info("=" * 80)
         
         for name, df in self.data.items():
-            logger.info(f"{name:25s}: {df.shape[0]:>10,} rows x {df.shape[1]:>3} columns")
-            logger.info(f"{'':25s}  Memory: {df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
+            logger.info(f"{name:25s}: {df.shape[0]:>10,} satır x {df.shape[1]:>3} sütun")
+            logger.info(f"{'':25s}  Bellek: {df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
         
         logger.info("=" * 80 + "\n")
     
     def merge_order_products(self) -> pd.DataFrame:
         """
-        Merges the prior and train order_products dataframes.
+        'prior' ve 'train' order_products veri çerçevelerini birleştirir.
         
         Returns:
-            The merged order_products dataframe.
+            Birleştirilmiş order_products veri çerçevesi.
         """
-        logger.info("🔗 Merging order_products datasets...")
+        logger.info("order_products veri setleri birleştiriliyor...")
         
         order_products = pd.concat([
             self.data['order_products_prior'],
             self.data['order_products_train']
         ], ignore_index=True)
         
-        logger.info(f"✅ Merged order_products: {order_products.shape}")
+        logger.info(f"Birleştirilmiş order_products: {order_products.shape}")
         
         return order_products
     
     def create_master_dataset(self) -> pd.DataFrame:
         """
-        Creates a master dataset by merging all tables.
+        Tüm tabloları birleştirerek ana bir veri seti oluşturur.
         
         Returns:
-            A master dataframe with all information.
+            Tüm bilgileri içeren ana bir veri çerçevesi.
         """
-        logger.info("🏗️  Creating master dataset...")
+        logger.info("Ana veri seti oluşturuluyor...")
         
-        # Merge order_products
+        # order_products birleştirme
         order_products = self.merge_order_products()
         
-        # Add product information
-        logger.info("   Merging with products...")
+        # Ürün bilgilerini ekleme
+        logger.info("Ürünler ile birleştiriliyor...")
         df = order_products.merge(
             self.data['products'],
             on='product_id',
             how='left'
         )
         
-        # Add aisle information
-        logger.info("   Merging with aisles...")
+        # Reyon bilgilerini ekleme
+        logger.info("Reyonlar ile birleştiriliyor...")
         df = df.merge(
             self.data['aisles'],
             on='aisle_id',
             how='left'
         )
         
-        # Add department information
-        logger.info("   Merging with departments...")
+        # Departman bilgilerini ekleme
+        logger.info("Departmanlar ile birleştiriliyor...")
         df = df.merge(
             self.data['departments'],
             on='department_id',
             how='left'
         )
         
-        # Add order information
-        logger.info("   Merging with orders...")
+        # Sipariş bilgilerini ekleme
+        logger.info("Siparişler ile birleştiriliyor...")
         df = df.merge(
             self.data['orders'],
             on='order_id',
             how='left'
         )
         
-        logger.info(f"✅ Master dataset created: {df.shape}")
-        logger.info(f"   Columns: {list(df.columns)}\n")
+        logger.info(f"Ana veri seti oluşturuldu: {df.shape}")
+        logger.info(f"Sütunlar: {list(df.columns)}\n")
         
         return df
     
     def get_user_order_history(self, user_id: int) -> pd.DataFrame:
         """
-        Retrieves the order history for a specific user.
+        Belirli bir kullanıcının sipariş geçmişini getirir.
         
         Args:
-            user_id: The User ID.
+            user_id: Kullanıcı ID'si.
             
         Returns:
-            The user's order history as a dataframe.
+            Kullanıcının sipariş geçmişini bir veri çerçevesi olarak döndürür.
         """
         master_df = self.create_master_dataset()
         user_history = master_df[master_df['user_id'] == user_id].copy()
         
-        logger.info(f"📊 User {user_id} history: {user_history.shape[0]} orders")
+        logger.info(f"Kullanıcı {user_id} geçmişi: {user_history.shape[0]} sipariş")
         
         return user_history
     
     def get_data_info(self) -> Dict:
         """
-        Provides detailed information about the data.
+        Veri hakkında detaylı bilgi sağlar.
         
         Returns:
-            A dictionary with data statistics.
+            Veri istatistiklerini içeren bir sözlük.
         """
         if not self.data:
-            logger.warning("⚠️  No data loaded yet!")
+            logger.warning("Henüz veri yüklenmedi!")
             return {}
         
         info = {
@@ -189,12 +189,12 @@ class InstacartDataLoader:
     def save_processed_data(self, df: pd.DataFrame, filename: str, 
                            output_dir: Optional[Path] = None):
         """
-        Saves the processed data.
+        İşlenmiş veriyi kaydeder.
         
         Args:
-            df: The dataframe to save.
-            filename: The output filename.
-            output_dir: The output directory (default: data/processed).
+            df: Kaydedilecek veri çerçevesi.
+            filename: Çıktı dosya adı.
+            output_dir: Çıktı dizini (varsayılan: data/processed).
         """
         if output_dir is None:
             output_dir = self.data_dir.parent / "processed"
@@ -202,27 +202,27 @@ class InstacartDataLoader:
         output_dir.mkdir(parents=True, exist_ok=True)
         filepath = output_dir / filename
         
-        logger.info(f"💾 Saving to {filepath}...")
+        logger.info(f"Kaydediliyor: {filepath}...")
         
         if filepath.suffix == '.parquet':
             df.to_parquet(filepath, index=False)
         elif filepath.suffix == '.csv':
             df.to_csv(filepath, index=False)
         else:
-            raise ValueError(f"Unsupported file format: {filepath.suffix}")
+            raise ValueError(f"Desteklenmeyen dosya formatı: {filepath.suffix}")
         
-        logger.info(f"✅ Saved successfully!")
+        logger.info(f"Başarıyla kaydedildi!")
 
 
 def load_instacart_data(data_dir: Path) -> Dict[str, pd.DataFrame]:
     """
-    A quick loader function.
+    Hızlı bir yükleyici fonksiyonu.
     
     Args:
-        data_dir: The directory containing Instacart CSV files.
+        data_dir: Instacart CSV dosyalarını içeren dizin.
         
     Returns:
-        A dictionary of dataframes.
+        Veri çerçevelerini içeren bir sözlük.
     """
     loader = InstacartDataLoader(data_dir)
     return loader.load_all_data()
@@ -231,31 +231,31 @@ def load_instacart_data(data_dir: Path) -> Dict[str, pd.DataFrame]:
 def create_sample_data(data: Dict[str, pd.DataFrame], 
                       sample_size: int = 10000) -> Dict[str, pd.DataFrame]:
     """
-    Creates sample data for quick testing.
+    Hızlı test için örnek veri oluşturur.
     
     Args:
-        data: The original data dictionary.
-        sample_size: The number of users to sample.
+        data: Orijinal veri sözlüğü.
+        sample_size: Örneklenecek kullanıcı sayısı.
         
     Returns:
-        A sampled data dictionary.
+        Örneklenmiş bir veri sözlüğü.
     """
-    logger.info(f"🎲 Creating sample dataset with {sample_size} users...")
+    logger.info(f"{sample_size} kullanıcı ile örnek veri seti oluşturuluyor...")
     
-    # Sample users
+    # Kullanıcıları örnekle
     sample_users = data['orders']['user_id'].drop_duplicates().sample(
         n=min(sample_size, data['orders']['user_id'].nunique()),
         random_state=42
     )
     
-    # Filter orders
+    # Siparişleri filtrele
     sample_orders = data['orders'][
         data['orders']['user_id'].isin(sample_users)
     ].copy()
     
     sample_order_ids = sample_orders['order_id'].unique()
     
-    # Filter order_products
+    # order_products filtrele
     sample_op_prior = data['order_products_prior'][
         data['order_products_prior']['order_id'].isin(sample_order_ids)
     ].copy()
@@ -273,36 +273,36 @@ def create_sample_data(data: Dict[str, pd.DataFrame],
         'departments': data['departments'].copy()
     }
     
-    logger.info(f"✅ Sample dataset created:")
-    logger.info(f"   Users: {len(sample_users):,}")
-    logger.info(f"   Orders: {len(sample_orders):,}")
-    logger.info(f"   Products in orders: {len(sample_op_prior) + len(sample_op_train):,}\n")
+    logger.info(f"Örnek veri seti oluşturuldu:")
+    logger.info(f"Kullanıcılar: {len(sample_users):,}")
+    logger.info(f"Siparişler: {len(sample_orders):,}")
+    logger.info(f"Siparişlerdeki ürünler: {len(sample_op_prior) + len(sample_op_train):,}\n")
     
     return sampled_data
 
 
-# Example usage
+# Örnek kullanım
 if __name__ == "__main__":
     from pathlib import Path
     
-    # Example: Load data
+    # Örnek: Veri yükleme
     data_dir = Path("../../data/raw")
     
     if data_dir.exists():
         loader = InstacartDataLoader(data_dir)
         data = loader.load_all_data()
         
-        # Create master dataset
+        # Ana veri setini oluştur
         master_df = loader.create_master_dataset()
         
-        # Save processed data
+        # İşlenmiş veriyi kaydet
         loader.save_processed_data(master_df, "master_dataset.parquet")
         
-        # Print info
+        # Bilgileri yazdır
         info = loader.get_data_info()
-        print("\n📊 Dataset Statistics:")
+        print("\n Veri Seti İstatistikleri:")
         for key, value in info.items():
             print(f"   {key}: {value}")
     else:
-        print(f"❌ Data directory not found: {data_dir}")
-        print("   Please download Instacart data first!")
+        print(f"Veri dizini bulunamadı: {data_dir}")
+        print("Lütfen önce Instacart verilerini indirin!")

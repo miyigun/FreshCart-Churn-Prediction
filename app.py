@@ -7,61 +7,61 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
 import sqlite3
-import plotly.express as px  # For interactive charts
+import plotly.express as px  # İnteraktif grafikler için
 import sys
 import os
 
-# --- PATH CONFIGURATION ---
-# Get the absolute path of the current directory (where app.py is)
+# --- YOL YAPILANDIRMASI ---
+# Mevcut dizinin mutlak yolunu al (app.py'nin olduğu yer)
 current_dir = os.path.dirname(os.path.abspath(__file__))
-# Add it to sys.path if not already there to ensure imports work correctly
+# İçe aktarmaların doğru çalışmasını sağlamak için sys.path'e ekle (eğer zaten ekli değilse)
 if current_dir not in sys.path:
     sys.path.append(current_dir)
 
 from src.config import PROCESSED_DATA_DIR, MODEL_DIR
 
-# --- MONITORING IMPORT ---
+# --- İZLEME MODÜLÜ İÇE AKTARMA ---
 # DB dosyası 'src/monitoring/db.py' yolunda olduğu için
 # Python'un src paketinden import ediyoruz.
 try:
     from src.monitoring.db import init_db, log_prediction, get_connection
 except ImportError as e:
-    st.error(f"Monitoring modülü yüklenirken hata oluştu: {e}")
+    st.error(f"İzleme modülü yüklenirken hata oluştu: {e}")
     st.stop()
 
-# --- PAGE CONFIGURATION ---
+# --- SAYFA YAPILANDIRMASI ---
 st.set_page_config(
-    page_title="FreshCart Churn Prediction",
+    page_title="FreshCart Customer Churn Prediction",
     page_icon="🛒",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- INIT DB ---
-# Initialize monitoring database when app starts
+# --- DB'Yİ BAŞLAT ---
+# Uygulama başladığında izleme veritabanını başlat
 init_db()
 
-# --- HIGH CONTRAST DARK THEME CSS ---
+# --- YÜKSEK KONTRASTLI KOYU TEMA CSS ---
 st.markdown("""
 <style>
-    /* Global Settings (Main App) */
+    /* Genel Ayarlar (Ana Uygulama) */
     .stApp {
         background-color: #0e1117;
         color: #ffffff;
     }
     
-    /* --- SIDEBAR FIX --- */
+    /* --- KENAR ÇUBUĞU DÜZELTMESİ --- */
     [data-testid="stSidebar"] {
         background-color: #161b22 !important;
         border-right: 1px solid #30363d;
     }
     
-    /* Make all text in Sidebar white */
+    /* Kenar Çubuğundaki tüm metinleri beyaz yap */
     [data-testid="stSidebar"] * {
         color: #e6edf3 !important;
     }
 
-    /* --- RADIO BUTTON AND CHECKBOX TEXTS --- */
+    /* --- RADYO BUTONU VE ONAY KUTUSU METİNLERİ --- */
     .stRadio label span, .stRadio label p {
         color: #ffffff !important;
         font-size: 1rem;
@@ -75,7 +75,7 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-    /* --- OTHER ELEMENTS --- */
+    /* --- DİĞER ELEMANLAR --- */
     .stSelectbox label {
         color: #ffffff !important;
         font-weight: bold;
@@ -86,7 +86,7 @@ st.markdown("""
         border: 1px solid #58a6ff;
     }
     
-    /* Custom Info Box */
+    /* Özel Bilgi Kutusu */
     .info-box {
         background-color: #1f2937;
         border: 1px solid #58a6ff;
@@ -103,7 +103,7 @@ st.markdown("""
         margin-bottom: 0;
     }
 
-    /* Metric Cards */
+    /* Metrik Kartları */
     div[data-testid="stMetric"] {
         background-color: #21262d;
         border: 1px solid #484f58;
@@ -117,35 +117,35 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-    /* Header Fix */
+    /* Başlık Düzeltmesi */
     header[data-testid="stHeader"] {
         background-color: #0e1117 !important;
     }
     
-    /* Headings */
+    /* Başlıklar */
     h1, h2, h3 {
         color: #58a6ff !important;
     }
-    /* General Paragraph Texts */
+    /* Genel Paragraf Metinleri */
     p {
         color: #e6edf3;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- HELPER FUNCTIONS ---
+# --- YARDIMCI FONKSİYONLAR ---
 @st.cache_resource
 def load_artifacts():
-    """Loads the trained model and necessary metadata."""
-    # 1. Load Model
+    """Eğitilmiş modeli ve gerekli meta verileri yükler."""
+    # 1. Modeli Yükle
     try:
         model = joblib.load(MODEL_DIR / 'final_model_optimized.pkl')
     except FileNotFoundError:
-        st.error("⚠️ Model file (final_model_optimized.pkl) not found in models directory.")
+        st.error("Model dosyası (final_model_optimized.pkl) models dizininde bulunamadı.")
         st.stop()
     
-    # 2. Load Feature Names
-    # App looks at models/feature_names.json first, then processed/model_features.json
+    # 2. Özellik Adlarını Yükle
+    # Uygulama önce models/feature_names.json'a, sonra processed/model_features.json'a bakar
     feature_names = []
     feature_file_used = ""
     
@@ -162,116 +162,116 @@ def load_artifacts():
                 feature_names = json.load(f)
             feature_file_used = "data/processed/model_features.json"
         else:
-            st.error("⚠️ Feature list JSON file not found in models/ or data/processed/.")
+            st.error("Özellik listesi JSON dosyası models/ veya data/processed/ dizininde bulunamadı.")
             st.stop()
             
     except Exception as e:
-        st.error(f"⚠️ Error loading feature names: {e}")
+        st.error(f"Özellik adları yüklenirken hata: {e}")
         st.stop()
         
-    # 3. Load Data
+    # 3. Veriyi Yükle
     try:
         data_path = PROCESSED_DATA_DIR / 'final_features_advanced.parquet'
         data = pd.read_parquet(data_path)
         
-        # Validate Columns immediately to prevent late KeyErrors
+        # Geç KeyErrors'ı önlemek için Sütunları hemen doğrula
         missing_cols = [col for col in feature_names if col not in data.columns]
         if missing_cols:
-            st.warning(f"⚠️ Data Mismatch detected! The feature list in '{feature_file_used}' expects columns not found in the parquet file: {missing_cols}")
-            # Fail safe: Only keep columns that actually exist
+            st.warning(f"Veri Uyuşmazlığı tespit edildi! '{feature_file_used}' içindeki özellik listesi, parke dosyasında bulunmayan sütunlar bekliyor: {missing_cols}")
+            # Güvenli mod: Sadece gerçekten var olan sütunları tut
             feature_names = [col for col in feature_names if col in data.columns]
         
         cols_to_keep = ['user_id', 'is_churn'] + feature_names
-        # Ensure user_id and is_churn exist too
+        # user_id ve is_churn'ün de var olduğundan emin ol
         cols_to_keep = [c for c in cols_to_keep if c in data.columns]
         
         data = data[cols_to_keep]
         
     except FileNotFoundError:
-        st.warning("⚠️ Parquet data not found. App will run in Model-Only mode (no historical data).")
+        st.warning("Parquet verisi bulunamadı. Uygulama sadece Model Modunda çalışacak (geçmiş veri yok).")
         data = pd.DataFrame()
     except Exception as e:
-        st.error(f"⚠️ Error loading data: {e}")
+        st.error(f"Veri yüklenirken hata: {e}")
         data = pd.DataFrame()
 
     return model, feature_names, data
 
-# --- LOAD DATA ---
+# --- VERİYİ YÜKLE ---
 try:
     model, feature_names, df = load_artifacts()
 except Exception as e:
-    st.error(f"System Error: {e}")
+    st.error(f"Sistem Hatası: {e}")
     st.stop()
 
-# --- SIDEBAR ---
+# --- KENAR ÇUBUĞU ---
 st.sidebar.image("https://img.icons8.com/fluency/96/shopping-cart.png", width=80)
 st.sidebar.title("FreshCart AI")
 
-# NEW OPTION ADDED TO NAVIGATION
-page = st.sidebar.radio("NAVIGATION", [
-    "🏠 Prediction Hub", 
-    "📊 Model Analytics", 
-    "📈 Deep Insights",
-    "⚡ System Monitoring"
+# NAVİGASYONA YENİ SEÇENEK EKLENDİ
+page = st.sidebar.radio("NAVİGASYON", [
+    "🏠 Tahmin Merkezi", 
+    "📊 Model Analizi", 
+    "📈 Derinlemesine Analiz",
+    "⚡ Sistem İzleme"
 ])
 
 st.sidebar.markdown("---")
 
-# --- SIDEBAR FOOTER ---
+# --- KENAR ÇUBUĞU ALT BİLGİSİ ---
 st.sidebar.markdown("""
-### 👨‍💻 Developed By
+### Geliştiren
 <div style="margin-top: -10px;">
     <h4 style="margin-bottom: 0px; color: #ffffff;">Murat IYIGUN</h4>
     <p style="margin-top: 0px; font-size: 0.9rem; color: #8b949e; font-style: italic;">
-        Data Scientist & AI Engineer
+        Veri Bilimci & Yapay Zeka Mühendisi
     </p>
 </div>
 """, unsafe_allow_html=True)
 
-# --- PAGE 1: PREDICTION HUB ---
-if page == "🏠 Prediction Hub":
-    # HEADER
-    st.title("🛒 Customer Churn Prediction System")
+# --- SAYFA 1: TAHMİN MERKEZİ ---
+if page == "🏠 Tahmin Merkezi":
+    # BAŞLIK
+    st.title("🛒 Müşteri Kaybı Tahmin Sistemi")
     
     st.markdown("""
     <div class="info-box">
-        <h4>🎯 Project Mission</h4>
+        <h4>🎯 Proje Misyonu</h4>
         <p>
-            This system leverages <strong>Advanced Machine Learning (LightGBM)</strong> to predict customer churn risk 
-            <strong>14 days in advance</strong>. Real-time predictions are logged for drift monitoring.
+            Bu sistem, müşteri kaybı riskini <strong>14 gün önceden</strong> tahmin etmek için 
+            <strong>İleri Düzey Makine Öğrenmesi (LightGBM)</strong> kullanır. Gerçek zamanlı tahminler, veri kayması (drift) takibi için kaydedilir.
         </p>
     </div>
     """, unsafe_allow_html=True)
     
     if df.empty:
-        st.warning("⚠️ Data stream offline.")
+        st.warning("⚠️ Veri akışı çevrimdışı.")
     else:
-        # SELECTION AREA
-        st.subheader("👤 Customer Profile Selection")
+        # SEÇİM ALANI
+        st.subheader("👤 Müşteri Profili Seçimi")
         
         sel_col1, sel_col2, _ = st.columns([1, 1.5, 2])
         
         with sel_col1:
-            input_method = st.radio("Source:", ["ID List", "Random Sample"], horizontal=True)
+            input_method = st.radio("Kaynak:", ["ID Listesi", "Rastgele Örnek"], horizontal=True)
         
         with sel_col2:
-            if input_method == "ID List":
-                selected_user_id = st.selectbox("Search Customer ID:", df['user_id'].head(100).tolist())
+            if input_method == "ID Listesi":
+                selected_user_id = st.selectbox("Müşteri ID'si Ara:", df['user_id'].head(100).tolist())
             else:
-                if st.button("🎲 Generate Random Profile", type="primary"):
+                if st.button("🎲 Rastgele Profil Oluştur", type="primary"):
                     selected_user_id = df['user_id'].sample(1).values[0]
                 else:
                     selected_user_id = df['user_id'].iloc[0]
 
-        # PREDICTION
+        # TAHMİN
         customer_data = df[df['user_id'] == selected_user_id].iloc[0]
         input_features = customer_data[feature_names].to_frame().T
         churn_prob = model.predict(input_features)[0]
         THRESHOLD = 0.38 
         is_churn = churn_prob >= THRESHOLD
 
-        # --- LOGGING ---
-        # Save to DB as soon as prediction is made
+        # --- GÜNLÜK KAYDI (LOGGING) ---
+        # Tahmin yapılır yapılmaz veritabanına kaydet
         log_prediction(
             user_id=int(selected_user_id),
             features=customer_data,
@@ -283,30 +283,30 @@ if page == "🏠 Prediction Hub":
 
         st.markdown("---")
         
-        # RESULTS DASHBOARD
+        # SONUÇLAR PANOSU
         r1, r2, r3 = st.columns([1.2, 1.5, 2.3])
         
-        # 1. RISK STATUS
+        # 1. RİSK DURUMU
         with r1:
-            st.markdown("### ⚡ Risk Status")
+            st.markdown("### Risk Durumu")
             if is_churn:
-                st.metric("Prediction", "HIGH RISK", f"{churn_prob*100:.1f}% Prob", delta_color="inverse")
+                st.metric("Tahmin", "YÜKSEK RİSK", f"{churn_prob*100:.1f}% Olasılık", delta_color="inverse")
             else:
-                st.metric("Prediction", "LOYAL", f"{churn_prob*100:.1f}% Prob", delta_color="normal")
+                st.metric("Tahmin", "SADIK", f"{churn_prob*100:.1f}% Olasılık", delta_color="normal")
         
-        # 2. BEHAVIORAL DNA
+        # 2. DAVRANIŞSAL DNA
         with r2:
-            st.markdown("### 🧬 Behavioral DNA")
+            st.markdown("### Davranışsal DNA")
             st.info(f"""
-            - **Recency:** {customer_data.get('days_since_last_order', 0):.0f} days ago
-            - **Frequency:** {customer_data.get('total_orders', 0):.0f} total orders
-            - **Basket Size:** {customer_data.get('avg_basket_size', 0):.1f} items
-            - **Velocity:** {customer_data.get('purchase_velocity', 0):.2f} score
+            - **Yenilik:** {customer_data.get('days_since_last_order', 0):.0f} gün önce
+            - **Sıklık:** {customer_data.get('total_orders', 0):.0f} toplam sipariş
+            - **Sepet Büyüklüğü:** {customer_data.get('avg_basket_size', 0):.1f} ürün
+            - **Hız:** {customer_data.get('purchase_velocity', 0):.2f} skor
             """)
 
-        # 3. SHAP EXPLANATION
+        # 3. SHAP AÇIKLAMASI
         with r3:
-            st.markdown("### 🧠 AI Reasoning (SHAP)")
+            st.markdown("### Yapay Zeka Gerekçesi (SHAP)")
             try:
                 explainer = shap.TreeExplainer(model)
                 shap_values = explainer(input_features)
@@ -325,82 +325,82 @@ if page == "🏠 Prediction Hub":
                 st.pyplot(fig, bbox_inches='tight')
                 plt.close(fig)
             except Exception as e:
-                st.warning("Explanation unavailable.")
+                st.warning("Açıklama mevcut değil.")
 
-# --- PAGE 2: MODEL ANALYTICS ---
-elif page == "📊 Model Analytics":
-    st.title("📊 System Performance Metrics")
-    st.markdown("Evaluation results on test data (20% hold-out set).")
+# --- SAYFA 2: MODEL ANALİZİ ---
+elif page == "📊 Model Analizi":
+    st.title("📊 Sistem Performans Metrikleri")
+    st.markdown("Test verisi (ayrılmış %20'lik set) üzerindeki değerlendirme sonuçları.")
     
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("ROC-AUC Score", "0.77", "Good Stability")
-    m2.metric("F1-Score", "0.60", "Recall Focused")
-    m3.metric("Recall Rate", "81%", "High Capture")
-    m4.metric("Proj. Revenue Impact", "$1.7M", "Annual Saved")
+    m1.metric("ROC-AUC Skoru", "0.77", "İyi Stabilite")
+    m2.metric("F1-Skoru", "0.60", "Duyarlılık Odaklı")
+    m3.metric("Duyarlılık Oranı", "81%", "Yüksek Yakalama")
+    m4.metric("Tahmini Gelir Etkisi", "1.7M $", "Yıllık Tasarruf")
 
     st.markdown("---")
     
     c1, c2 = st.columns(2)
     with c1:
-        st.markdown("#### 📉 ROC & Precision-Recall Curves")
+        st.markdown("#### 📉 ROC ve Precision-Recall Eğrileri")
         try: st.image("plots/13_roc_pr_curves.png", use_container_width=True)
-        except: st.info("Visualization not available.")
+        except: st.info("Görselleştirme mevcut değil.")
             
     with c2:
-        st.markdown("#### 🔑 Feature Importance")
+        st.markdown("#### 🔑 Özellik Önemi")
         try: st.image("plots/14_feature_importance.png", use_container_width=True)
-        except: st.info("Visualization not available.")
+        except: st.info("Görselleştirme mevcut değil.")
 
-    st.markdown("#### 💰 ROI Optimization Analysis")
+    st.markdown("#### 💰 ROI Optimizasyon Analizi")
     try:
         st.image("plots/20_threshold_optimization.png", use_container_width=True)
     except:
-        st.info("ROI Chart not available.")
+        st.info("ROI Grafiği mevcut değil.")
 
-# --- PAGE 3: DATA INSIGHTS ---
-elif page == "📈 Deep Insights":
-    st.title("📈 Exploratory Intelligence")
-    st.markdown("Discovering hidden patterns in customer behavior.")
+# --- SAYFA 3: VERİ ANALİZİ ---
+elif page == "📈 Derinlemesine Analiz":
+    st.title("📈 Keşifsel Zeka")
+    st.markdown("Müşteri davranışlarındaki gizli kalıpları keşfetme.")
     
-    tab1, tab2 = st.tabs(["🌍 Market Overview", "🤖 AI Drivers"])
+    tab1, tab2 = st.tabs(["🌍 Pazar Genel Bakışı", "🤖 Yapay Zeka Etkenleri"])
     
     with tab1:
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown("##### ⏰ Order Timing Habits")
+            st.markdown("##### ⏰ Sipariş Zamanlama Alışkanlıkları")
             try: st.image("plots/02_orders_univariate.png", use_container_width=True)
-            except: st.info("Data unavailable.")
+            except: st.info("Veri mevcut değil.")
         with col2:
-            st.markdown("##### 📦 Product Affinity")
+            st.markdown("##### 📦 Ürün Yakınlığı")
             try: st.image("plots/04_product_metrics.png", use_container_width=True)
-            except: st.info("Data unavailable.")
+            except: st.info("Veri mevcut değil.")
                 
     with tab2:
-        st.markdown("##### 🧠 Global Explainability (SHAP)")
+        st.markdown("##### 🧠 Genel Açıklanabilirlik (SHAP)")
         try:
             st.image("plots/16_shap_summary.png", use_container_width=True)
-            st.info("Feature Impact Direction: Red = High Value, Blue = Low Value.")
-        except: st.info("SHAP summary unavailable.")
+            st.info("Özellik Etki Yönü: Kırmızı = Yüksek Değer, Mavi = Düşük Değer.")
+        except: st.info("SHAP özeti mevcut değil.")
 
-# --- PAGE 4: SYSTEM MONITORING (NEW) ---
-elif page == "⚡ System Monitoring":
-    st.title("⚡ Live System Monitoring")
-    st.markdown("Real-time tracking of model predictions and data drift.")
+# --- SAYFA 4: SİSTEM İZLEME (YENİ) ---
+elif page == "⚡ Sistem İzleme":
+    st.title("⚡ Canlı Sistem İzleme")
+    st.markdown("Model tahminlerinin ve veri kaymasının gerçek zamanlı takibi.")
 
-    # Fetch logs from database
+    # Veritabanından günlük kayıtlarını al
     try:
         conn = get_connection()
         logs_df = pd.read_sql("SELECT * FROM predictions ORDER BY timestamp DESC", conn)
         conn.close()
     except Exception as e:
-        st.error(f"Connection Error: {e}")
+        st.error(f"Bağlantı Hatası: {e}")
         logs_df = pd.DataFrame()
 
     if logs_df.empty:
-        st.info("Waiting for incoming predictions to generate logs...")
+        st.info("Günlük oluşturmak için gelen tahminler bekleniyor...")
     else:
-        # KPI ROW
-        st.subheader("📡 Live Statistics")
+        # KPI SATIRI
+        st.subheader("📡 Canlı İstatistikler")
         k1, k2, k3, k4 = st.columns(4)
         
         total_preds = len(logs_df)
@@ -408,23 +408,23 @@ elif page == "⚡ System Monitoring":
         avg_conf = logs_df['predicted_prob'].mean() * 100
         last_active = logs_df['timestamp'].iloc[0]
 
-        k1.metric("Total Predictions", f"{total_preds}", "+1 (Live)")
-        k2.metric("Avg Predicted Churn Rate", f"{churn_rate:.1f}%", "Target < 20%")
-        k3.metric("Avg Confidence", f"{avg_conf:.1f}%")
-        k4.metric("Last Activity", last_active.split('.')[0]) # Clean up seconds
+        k1.metric("Toplam Tahmin", f"{total_preds}", "+1 (Canlı)")
+        k2.metric("Ort. Tahmini Kayıp Oranı", f"{churn_rate:.1f}%", "Hedef < 20%")
+        k3.metric("Ort. Güven", f"{avg_conf:.1f}%")
+        k4.metric("Son Aktivite", last_active.split('.')[0]) # Saniyeleri temizle
 
         st.markdown("---")
         
-        # VISUALIZATION ROW
+        # GÖRSELLEŞTİRME SATIRI
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown("#### 📊 Prediction Distribution")
+            st.markdown("#### 📊 Tahmin Dağılımı")
             fig = px.histogram(
                 logs_df, 
                 x="predicted_prob", 
                 nbins=20, 
-                title="Predicted Probability Distribution",
+                title="Tahmin Edilen Olasılık Dağılımı",
                 color_discrete_sequence=['#58a6ff'],
                 template="plotly_dark"
             )
@@ -432,27 +432,27 @@ elif page == "⚡ System Monitoring":
             st.plotly_chart(fig, use_container_width=True)
             
         with col2:
-            st.markdown("#### ⚠️ Drift Monitor: Purchase Velocity")
-            # Compare Baseline (Training Data) with Live Data
-            # Get average velocity from training data (from global df)
+            st.markdown("#### Kayma Monitörü: Satın Alma Hızı")
+            # Temel (Eğitim Verisi) ile Canlı Veriyi Karşılaştır
+            # Eğitim verisinden ortalama hızı al (genel df'den)
             baseline_mean = df['purchase_velocity'].mean()
             current_mean = logs_df['purchase_velocity'].mean()
             
             fig = px.box(
                 logs_df, 
                 y="purchase_velocity", 
-                title=f"Live Velocity Dist. (Baseline: {baseline_mean:.2f})",
+                title=f"Canlı Hız Dağ. (Temel: {baseline_mean:.2f})",
                 color_discrete_sequence=['#FF4B4B'],
                 template="plotly_dark"
             )
-            # Baseline reference line
-            fig.add_hline(y=baseline_mean, line_dash="dash", line_color="green", annotation_text="Training Baseline")
+            # Temel referans çizgisi
+            fig.add_hline(y=baseline_mean, line_dash="dash", line_color="green", annotation_text="Eğitim Temeli")
             st.plotly_chart(fig, use_container_width=True)
 
-        # RAW LOGS
-        with st.expander("📝 View Raw Prediction Logs", expanded=False):
+        # HAM GÜNLÜK KAYITLARI
+        with st.expander("Ham Tahmin Günlüklerini Görüntüle", expanded=False):
             st.dataframe(logs_df.style.highlight_max(axis=0))
 
-# --- FOOTER ---
+# --- ALT BİLGİ ---
 st.sidebar.markdown("---")
-st.sidebar.caption("v1.0.2 | Production Build")
+st.sidebar.caption("v1.0.3 | Üretim Sürümü")
