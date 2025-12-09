@@ -277,7 +277,7 @@ if page == "🏠 Tahmin Merkezi":
             features=customer_data,
             prob=float(churn_prob),
             label=int(is_churn),
-            model_version='v1.0.2'
+            model_version='v1.0.3'
         )
         # ---------------
 
